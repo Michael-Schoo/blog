@@ -1,4 +1,4 @@
-baseurl: https://Michael-Schoo.github.io/blog
+baseurl: https://Michael-Schoo.github.io/blog/
 languageCode: en-us
 theme: hugo-theme-stack
 paginate: 5
