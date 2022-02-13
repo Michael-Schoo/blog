@@ -1,0 +1,162 @@
+baseurl: https://Michael-Schoo.github.io/blog
+languageCode: en-us
+theme: hugo-theme-stack
+paginate: 5
+title: Michael Blog
+
+# GA Tracking ID
+googleAnalytics:
+
+# Theme i18n support
+# Available values: en, fr, id, ja, ko, pt-br, zh-cn, zh-tw, es, de, nl, it, th, el, uk
+DefaultContentLanguage: en
+
+# Set hasCJKLanguage to true if DefaultContentLanguage is in [zh-cn ja ko]
+# This will make .Summary and .WordCount behave correctly for CJK languages.
+hasCJKLanguage: false
+
+permalinks:
+    post: /p/:slug/
+    page: /:slug/
+
+params:
+    mainSections:
+        - post
+    featuredImageField: image
+    rssFullContent: true
+    # favicon: /img2.jpg
+
+    footer:
+        # since: 2022
+        customText: The contents of the website is made by <a href="#" target=_blank>Michael H</a>
+
+    dateFormat:
+        published: Jan 02, 2006
+        lastUpdated: Jan 02, 2006 # 15:04 MST
+
+    sidebar:
+        emoji: 🏫
+        subtitle: A blog for IT at school
+        avatar:
+            local: true
+            enabled: true
+            src: img2.jpg
+
+    article:
+        math: false
+        toc: true
+        readingTime: true
+        author: true
+
+    widgets:
+        enabled:
+            - search
+            - archives
+            - tag-cloud
+
+        archives:
+            limit: 5
+
+        tagCloud:
+            limit: 10
+
+    colorScheme:
+        # Display toggle
+        toggle: false
+
+        # Available values: auto, light, dark
+        default: auto
+
+    imageProcessing:
+        cover:
+            enabled: true
+        content:
+            enabled: true
+
+### Custom menu
+### See https://docs.stack.jimmycai.com/configuration/custom-menu.html
+### To remove about, archive and search page menu item, remove `menu` field from their FrontMatter
+menu:
+    main:
+        - identifier: home
+          name: Home
+          url: ./
+          weight: -100
+          params:
+            icon: home
+        - identifier: about
+          name: About
+          url: ./about
+          weight: -90
+          params:
+            icon: user
+        - identifier: archives
+          name: Archives
+          url: ./archives
+          weight: -70
+          params:
+            icon: archives
+        - identifier: search
+          name: Search
+          url: ./search
+          weight: -60
+          params:
+            icon: search
+
+    
+    social:
+        - identifier: github
+          name: GitHub
+          url: https://github.com/Michael-Schoo/blog
+          params:
+            icon: brand-github
+            
+
+related:
+    includeNewer: true
+    threshold: 60
+    toLower: false
+    indices:
+        - name: tags
+          weight: 100
+
+        - name: categories
+          weight: 200
+
+markup:
+    goldmark:
+        renderer:
+            ## Set to true if you have HTML content inside Markdown
+            unsafe: false
+    tableOfContents:
+        endLevel: 4
+        ordered: true
+        startLevel: 2
+    highlight:
+        noClasses: false
+
+
+minify:
+  minifyOutput: true
+  tdewolff:
+    css:
+      keepCSS2: true
+      precision: 0
+    html:
+      keepComments: false
+      keepConditionalComments: true
+      keepDefaultAttrVals: false
+      keepDocumentTags: false
+      keepEndTags: false
+      keepQuotes: false
+      keepWhitespace: false
+    js:
+      keepVarNames: false
+      precision: 0
+    json:
+      keepNumbers: false
+      precision: 0
+    svg:
+      precision: 0
+    xml:
+      keepWhitespace: false

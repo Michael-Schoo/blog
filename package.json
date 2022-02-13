@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "hugo-extended": "^0.92.0"
+  },
+  "scripts": {
+    "build": "hugo-extended",
+    "serve": "hugo-extended --buildDrafts=true --watch=true"
+  }
+}
