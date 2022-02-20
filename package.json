@@ -3,7 +3,8 @@
     "hugo-extended": "^0.92.0"
   },
   "scripts": {
-    "build": "hugo-extended",
-    "serve": "hugo-extended --buildDrafts=true --watch=true"
+    "build": "hugo-extended  --minify",
+    "serve": "hugo-extended serve --buildDrafts=true --watch=true --buildFuture=true --baseURL=http://localhost/blog --port=80",
+    "buildTest": "hugo-extended --minify --buildDrafts=true --buildFuture=true  --destination=blog --baseURL=http://localhost/blog && python -m http.server 80"
   }
 }

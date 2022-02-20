@@ -23,6 +23,7 @@ _testmain.go
 *.test
 
 public
+blog
 resources
 
 assets/jsconfig.json

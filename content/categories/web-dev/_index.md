@@ -1,6 +1,6 @@
 ---
 title: "Web Development"
-description: "This is an example category"
+description: "The posts that I have written about web development"
 slug: web-dev
 # https://www.spinutech.com/dev/cms/spinternet/custom-web-development/
 image: "img.png"

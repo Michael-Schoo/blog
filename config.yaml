@@ -28,7 +28,7 @@ params:
 
     footer:
         # since: 2022
-        customText: The contents of the website is made by <a href="#" target=_blank>Michael H</a>
+        customText: The contents of the website is made by <a href="https://github.com/Michael-Schoo" target=_blank>Michael H</a>
 
     dateFormat:
         published: Jan 02, 2006
