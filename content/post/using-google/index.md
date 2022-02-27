@@ -29,7 +29,7 @@ Well it just uses Bing, but it is more privacy which means that you might not ge
 ### Exact search
 By rapping you query in `"`quotation marks`"` it will only show websites that have that exact string in it.
 
-eg. `"Something i really want"`
+eg. `"Something I really want"`
 
 ### Website
 By putting `site:` in front of or website url (eg. google.com) it show results that is on that domain or site.

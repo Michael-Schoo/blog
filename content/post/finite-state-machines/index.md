@@ -10,9 +10,9 @@ tags:
     - From Tasks
 ---
 
-This week I have been learning about States including the use in computers. I have been tasked three tasks to do in the week ([automatic door](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Automatic%20Door.py), [vending machine](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Vending%20Machine.py), [robot](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.3%20-%20Robot.py)), these were simple to imagine but slightly harder to implement. My favorite task was the vending machine task because it was simple but hard with the nature of it. Compared to the door/robot one which doesn’t work with python as easily as it is hard to have changing inputs and waiting time to simulate with.
+This week I have been learning about States including the use in computers. I have been tasked three tasks to do in the week ([automatic door][automatic-door-link], [vending machine][vending-machine-link], [robot][robot-link]), these were simple to imagine but slightly harder to implement. My favorite task was the vending machine task because it was simple but hard with the nature of it. Compared to the door/robot one which doesn’t work with python as easily as it is hard to have changing inputs and waiting time to simulate with.
 
-The task [automatic door](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Automatic%20Door.py) was requiring me to make a python program that would accept input (like a remote button) and do different actions on it. An example of this is opening it, it first waits for the button to be pressed, then it checks the state, then it opens in 5 seconds, and making sure censor is not pressed.
+The task [automatic door][automatic-door-link] was requiring me to make a python program that would accept input (like a remote button) and do different actions on it. An example of this is opening it, it first waits for the button to be pressed, then it checks the state, then it opens in 5 seconds, and making sure censor is not pressed.
 
 ```python
 # Part of the code for automatic door
@@ -52,7 +52,7 @@ while True:
         position = ""
 ``` 
 
-Another task was the [vending machine](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Vending%20Machine.py), this simply put was to make a vending machine in python. It was basic but had a few things, one of which was that it had to have money and it had to have a selection of items. I made it have more features when I was making it as it made more sense in my mind, but then I realized I had done the extension task already so thats good.
+Another task was the [vending machine][vending-machine-link], this simply put was to make a vending machine in python. It was basic but had a few things, one of which was that it had to have money and it had to have a selection of items. I made it have more features when I was making it as it made more sense in my mind, but then I realized I had done the extension task already so thats good.
 
 ```python
 # Part of the code for vending machine
@@ -93,7 +93,7 @@ while True:
         continue
 ```
 
-The last task was the [robot](https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.3%20-%20Robot.py), the idea was to make a robot that followed a line and would do different things depending on the senores. It had the same annoyances as the door task but it was also solvable with some `input()`'s, this would be better solved by having an actual robot but it worked for demonstration.
+The last task was the [robot][robot-link], the idea was to make a robot that followed a line and would do different things depending on the senores. It had the same annoyances as the door task but it was also solvable with some `input()`'s, this would be better solved by having an actual robot but it worked for demonstration.
 
 
 ```python
@@ -136,3 +136,8 @@ while True:
 ```
 
 I was also curious with optimizing the code better with these tasks. I think it would have made them better if they were more efficient. Next week I am going to try more to optimize the code as much as possible.
+
+<!-- Links -->
+[automatic-door-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Automatic%20Door.py
+[vending-machine-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Vending%20Machine.py
+[robot-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%Robot.py
