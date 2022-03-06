@@ -140,4 +140,4 @@ I was also curious with optimizing the code better with these tasks. I think it 
 <!-- Links -->
 [automatic-door-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Automatic%20Door.py
 [vending-machine-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%20Vending%20Machine.py
-[robot-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.2%20-%Robot.py
+[robot-link]: https://github.com/Michael-Schoo/tasks/blob/main/4%20-%20Finite%20State%20Machines/4.3%20-%20Robot.pye
