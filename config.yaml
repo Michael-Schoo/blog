@@ -1,6 +1,6 @@
 baseurl: https://Michael-Schoo.github.io/blog/
 languageCode: en-us
-theme: hugo-theme-stack
+theme: hugo-theme-stack # https://github.com/CaiJimmy/hugo-theme-stack
 paginate: 5
 title: Michael Blog
 
