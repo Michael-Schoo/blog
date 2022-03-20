@@ -21,6 +21,8 @@ We then were meant to check out their [Mission Statement][task-3rd-read]. Withou
 
 The W3C also has [Accessibility Guidelines][task-4th-read]. It is a not very lengthy (I thought it would be very long) document that describes them-self and how they are useful. But they don't really get in-depth about actual accessibility stuff.
 
+---
+
 If I could have done this task again/differently, I would have exported more about the internet, but not get sidetracked like I kept on doing (eg when I found a [telnet server](https://telehack.com/)). This would have better as I learn more about the internet without learning/spending time on random stuff that isn't that helpful. I found stratification in that I already knew most of the stuff, but the parts that I didn't know made my knowledge not have as many gaps. The purpose of this task (to my understanding) was to learn more about the internet and how it is run (because that is what the unit is).
 
 <!-- Links -->

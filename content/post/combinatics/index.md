@@ -123,7 +123,6 @@ def main():
 main()
 ```
 
-<!-- My test to see if looks better with a break between content and reflection -->
 ---
 
 I would say I gave my best effort on this task as I started it on Friday and finished it (to an extent) on Sunday, I could have done more but with other assignments that I to do, and the complicatedness of this task I am happy (though I still have heaps to do on this task, but that's for another day). The reason that I started the task a few days ago, was because I had finished the previous tasks, I had the whole last week to do other tasks because there was nothing posted, and then my teacher posted this task, so I started it. I was to do the week differently I would have spent the time without a task to do my other assignments, then I would more time to do this and my other extension [task](../regex) (that one I got earlier though). I wish I could have helped my peers in the class, but I was the only one doing this task, I couldn't help that much, but since I still remembered doing the previous task, I could help to a degree.

@@ -86,7 +86,9 @@ Changes to the original code:
 """
 ```
 
-I have now learnt that changing code that was given is not the best idea. I will try to not change much fundamental things, but if I have changed anything, something will be said at the top of the document. I found that by changing the code to something I understood better, the original code actually made more sense then before. That means that from now on, if I have issues with code i can change it to something understandable to understand, but then change it back to the original code.
+---
+
+I have now learned that changing code that was given is not the best idea. I will try to not change much fundamental things, but if I have changed anything, something will be said at the top of the document. I found that by changing the code to something I understood better, the original code actually made more sense than before. That means that from now on, if I have issues with code I can change it to something understandable to understand, but then change it back to the original code.
 
 <!-- Links -->
 [code-link]: https://github.com/Michael-Schoo/tasks/blob/main/2%20-%20Python%20Revision%20-%20Object-Oriented%20Programming/Implementation_Model.py

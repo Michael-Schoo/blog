@@ -135,6 +135,8 @@ while True:
         
 ```
 
+---
+
 I was also curious with optimizing the code better with these tasks. I think it would have made them better if they were more efficient. Next week I am going to try more to optimize the code as much as possible.
 
 <!-- Links -->

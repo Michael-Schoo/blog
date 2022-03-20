@@ -16,4 +16,6 @@ Over the last week, I’ve been trying to understand Logic Circuits. I have lear
 
 ![My attempt to remake them (logic.ly)](made_them.screenshot.png)
 
+---
+
 I would say I have improved my understanding of logic circuits, but I still need to fully understand them. Though I don't think I put my best effort into it, I think this was because school was just getting started again and I wasn't in the mindset yet. I believe we are studding this because it will help when coding and doing different operations, as can be visualized easily.

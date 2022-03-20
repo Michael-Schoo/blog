@@ -110,7 +110,9 @@ class JKFlipFlopReceiver(LogicGate):
 
 ```
 
-The strategies I used to solve this problem were not giving up, trial/error, and research. This was required to get it to work, otherwise I wouldn't have had success to the same level or even at all. I was proud of understanding fixing my recursion problems and how to use the clock to solve it. I found finishing the task was a bit of a challenge, but satisfying and I'm proud of my final result. I learned that changing the code to your code style is a good thing, as it makes it easier to read and understand, this is one of the ways/reasons that the task was completed.
+---
+
+The strategies I used to solve this problem were not giving up, trial/error, and research. This was required to get it to work, otherwise I wouldn't have had success to the same level or even at all. I was proud of understanding fixing my recursion problems and how to use the clock to solve it. I found finishing the task was a bit of a challenge, but satisfying, and I'm proud of my final result. I learned that changing the code to your code style is a good thing, as it makes it easier to read and understand, this is one of the ways/reasons that the task was completed.
 
 <!-- Links -->
 [task-2nd-image-link]: https://www.allaboutcircuits.com/uploads/articles/completed-JK-flip-flop-sequential-circuit.jpg

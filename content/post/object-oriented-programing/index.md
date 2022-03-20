@@ -22,6 +22,8 @@ One we finished understanding them, we had to implement JK Flip-Flops, and make 
 
 > **[Work done here][code-link]**: the file that contains the completed code.
 
+---
+
 I believe we are learning this because knowing about object-oriented programming is very important when making good programs. I did find the reading part frustrating, mainly because it is a complicating task to understand/grasp. I plan to deal with the frustrations by reading more (for better knowledge), and coding more (so these parts can be quicker), and hopefully learn more about python. I found peers/friends one of the more helpful parts of completing this task.
 
 <!-- Links -->
