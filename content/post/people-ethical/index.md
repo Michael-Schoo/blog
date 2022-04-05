@@ -1,8 +1,8 @@
 ---
 title: People are ethical
-date: '2022-04-03'
+date: '2022-04-04'
 description: They want services that aren’t immoral  
-lastmod: '2022-04-03'
+lastmod: '2022-04-04'
 categories: 
     - data-science 
 tags: 

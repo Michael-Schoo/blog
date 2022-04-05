@@ -1,8 +1,8 @@
 ---
 title: W3C is impactful
-date: '2022-04-03'
+date: '2022-04-04'
 description: They have been needed for every website
-lastmod: '2022-04-03'
+lastmod: '2022-04-04'
 categories: 
     - web-dev
 tags: 
