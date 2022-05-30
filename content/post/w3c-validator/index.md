@@ -1,8 +1,8 @@
 ---
 title: W3C Validator
-date: '2022-05-29'
+date: '2022-05-30'
 description: Their validator removes fancy code
-lastmod: '2022-05-29'
+lastmod: '2022-05-30'
 categories:
     - web-dev
 tags:

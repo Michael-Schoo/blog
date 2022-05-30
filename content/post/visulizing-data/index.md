@@ -1,8 +1,8 @@
 ---
 title: Visualizing Data
-date: '2022-05-29'
+date: '2022-05-30'
 description: Showing my newly acquired data in an understandable way
-lastmod: '2022-05-29'
+lastmod: '2022-05-30'
 categories:
     - data-science
 tags:
