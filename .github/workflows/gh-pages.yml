@@ -8,7 +8,7 @@ on:
       branches:
         - main  # Set a branch to deploy
   schedule:
-    - cron: '30 1 * * 1' # every monday at 01:30 UTC (utc+11: 12:30pm)
+    - cron: '30 1 * * 1' # every monday at 01:30 UTC (utc+10: 11:30pm)
   workflow_dispatch:
 
 jobs:

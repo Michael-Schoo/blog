@@ -25,7 +25,6 @@ params:
     featuredImageField: image
     rssFullContent: true
     favicon: /blog/img-rounded.png
-    # favicon: /blog/img-round.png
 
     footer:
         # since: 2022
