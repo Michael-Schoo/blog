@@ -1,0 +1,33 @@
+---
+title: Bias is intentional?
+date: '2022-09-05'
+description: Do people purposely create bias when analyzing it
+lastmod: '2022-09-05'
+categories:
+    - data-science
+tags:
+    - From Assignments 
+    - In-class
+---
+
+## Overview
+
+The last week was back to normal, for the most part. The majority of people didn’t have an exam, and were recovering from that period. However, I didn’t have that luxury (to an extent) and I had to complete a test still. Granted that this is only one out the the many that I had this term so it was a small percentage, I did still have to think about studying (as said last post). This was all because of a timetable mix up, one that didn’t occur to any/ many people (to be fair it wasn’t that bad because it separated the tests and gave more study time). *There was a task to complete last week, but I will talk about it next week.*
+
+### What was done
+
+The prompt for the test was simple but kind of in-depth: **“Misrepresentation of data is often deliberate and due to the biases of the data analysts, or processes, involved.”** I argued that this is false to an extend, the different parts of the process have different likely hoods of misrepresentation data. My reasons were that the collection of data was more likely to be accidental, the analysts of data is more likely to be purposeful (or have some dark reasoning), and process its-self could be an issue (ie. transfer of that data). I was basically saying that it is more accidental then deliberate for misrepresentation to occur because how it is easier, but how someone with other motives can influence it. Luckily misrepresentation of data is currently rare/ isn’t that much in majority of representations of data.
+
+## Reflection
+
+### How different was this test compared to others?
+
+This test compared to the web dev test was similar just slightly harder. It was harder because I didn’t know what to write as much (compared to web dev test), and also just more confusing with the question being open ended (and especially the time constraint). Like the web dev test, not that much similarities to other tests in school. That is mainly because we are having access to a computer to write with, but also because of how close the question is to what we were studying in class prior to the test.
+
+### What made you curious?
+
+Even though there was a short time to do the task, I got curious trying to argue my point in the essay. It sound weird, but it kind of makes sense because to write something interesting for the reader (or marker) to read, you the writer have to engage with the prompt and provide your thinking. I would say that it was why it was interesting trying to think of compelling arguments, and is what I will strive to improve on for future assessments.
+
+### What are some things you did really well?
+
+For this test I don’t think I went as well as the data science test, but I think I still did ok and good. The thing that I would say that I did was getting a good word count (approx. 700 words), while the test doesn’t directly have a recommended word count, the more words the more explaining that can be made. And that is why I think I found good evidence for the prompt (or at least explaining my reasoning for my take on it)

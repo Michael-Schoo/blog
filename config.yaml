@@ -107,7 +107,7 @@ menu:
     social:
         - identifier: github
           name: GitHub
-          url: https://github.com/Michael-Schoo/blog
+          url: https://github.com/Michael-Schoo
           params:
             icon: brand-github
             
