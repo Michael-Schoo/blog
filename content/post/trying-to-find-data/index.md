@@ -1,0 +1,58 @@
+---
+title: Trying to find data 
+date: '2022-10-17'
+description: Locating data that is big (>1m entries) is hard
+lastmod: '2022-10-17'
+categories: 
+    - data-science 
+tags: 
+    - From Assignments
+    - Programming
+---
+
+## Overview
+
+We just has another week (after the holidays), which means blog time! The main thing that occurred was getting a new assignment, this comes with some things that have to be done. I have to find data, see what is interesting about it, create some visualizations on it, and finally write a report on the whole process (including an analysis of the visualizations). I didn’t do that much this week though, I mostly spent it on doing web dev and its new assignment (but you can read about it on its post).
+
+### What was completed
+
+Nothing much was done. I went to class, looked at the assignment, thought about what to do, and then looked at the web dev assignment. But in that time of thinking about data science, I was trying to find data that interested me (because at the end of the day, that is what the assignment is). The main difference between this and last assignment is that there has to be at least 1m entries of data, this means that the data is going to get large (and is wanting us to use random sampling). But the other issue is that the data can’t be too big, because otherwise downloading will take a long time, but reading it will be slow.
+
+To test how much data one million entries can take up, I made a simple test. This code below generates a csv that takes up approximately 30mbs of storage. Normally it would be larger as there is not that much information in this demo, and some more things in each row. Because I wanted to test how much bigger it was if it was 100m entries, I didn’t times my original result by 100, but rather changed the for loop’s range. This wasn’t the best thing as it made my computer glitch and use all of my ram (along with other things, and no BSOD which is good). Overall, I think if I find something just over the 1m mark, I will be fine storage wise as I am going to gitignore the file(s) that I get (because I like using GitHub for my assignments).
+
+```python
+import csv
+
+# field names 
+fields = ['Name', 'LastName', 'Age', 'City', 'i'] 
+    
+# data rows of csv file 
+rows = []
+
+for i in range(0, 1_000_000):
+    rows += ['John', 'Doe', '2', 'New York', i],
+
+with open('Test.csv', 'w') as f:
+      
+    # using csv.writer method from CSV package
+    write = csv.writer(f)
+      
+    write.writerow(fields)
+    write.writerows(rows)
+```
+
+*If the code above is confusing you, it is basically creating a csv file with 1 million entries which contain John Doe on each, It also puts a header on the top of csv file.*
+
+## Reflection
+
+### What made you curious?
+
+Even though it seems basic to say that the thing that was most interesting (or made me curious) was looking for data. It is basic because you would expect me to find the things required for the assignment, but luckily it is interesting (and probability the most). I didn’t have much else to do (or I did not do much other than that) because everything comes after finding the topic for analysis, imagine a graph that is made without data (it would be blank).
+
+### What frustrated you?
+
+While it can I curious when finding data, it is also frustrating when you realize that it can't be used (not 1m or not enough things in the data). The restrictions are what makes the assignment what it is, because it is to simulate big data, but that doesn’t change it being frustrating. The best way to overcome that is to find something quickly, this will mean that I have to be a bit more frustrated in the short term but in the long term (after finding something) it should be better.
+
+### How did you help others?
+
+I did not really help others, while I did talk about the assignment (both web dev and data science), we just got it so not much things that can be helped with. Other weeks I have said that I should try to see if they need help (including not distracting them), but I think they understand it all and I would just be distracting them (and I also understand it too). If another person did need help with something (that I actually can help with) then I will try my best with helping.
