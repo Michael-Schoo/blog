@@ -1,1 +1,0 @@
-sudo hugo serve --buildDrafts=true --watch=true --buildFuture=true --baseURL=http://localhost/blog --port=80
