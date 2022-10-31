@@ -80,25 +80,25 @@ menu:
     main:
         - identifier: home
           name: Home
-          url: ./
+          url: /
           weight: -100
           params:
             icon: home
         - identifier: about
           name: About
-          url: ./about
+          url: /about
           weight: -90
           params:
             icon: user
         - identifier: archives
           name: Archives
-          url: ./archives
+          url: /archives
           weight: -70
           params:
             icon: archives
         - identifier: search
           name: Search
-          url: ./search
+          url: /search
           weight: -60
           params:
             icon: search
