@@ -153,8 +153,6 @@ Incase you have a common theme throughout your pages, you can make another templ
 
 ## Reflection
 
-## Reflection
-
 ### How can you incorporate this to something useful?
 
 A good way to use the new method of templating that was just learned is to simply use it on a test project. As I am going along with the [tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-ii-templates), I am doing the things locally with means I can test and change things to help with my understanding of it. I am sure there are many use cases that would benefit with showing data Beautifully. There aren’t many better ways of fetching and displaying data with Flask, and this is one of the best (if not the best) method of doing it.

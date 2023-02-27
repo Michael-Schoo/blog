@@ -1,7 +1,6 @@
 ---
 title: Uses of Big-O
 date: '2023-02-20'
-weight: -1
 description: How it can be used to determine speed and time used.
 lastmod: '2023-02-20'
 categories:
