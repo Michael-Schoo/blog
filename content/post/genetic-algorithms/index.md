@@ -9,6 +9,7 @@ categories:
 tags:
     - From Tasks
 ---
+
 ## Overview
 
 How did you come across this page, from my homepage (because you want to read my posts), from Google (because the title looks interesting), or because of my other posts (ie web dev). Well, it doesn’t matter because I will tell you about my past week and learning of IT. I have an upcoming exam which will be around the topic of AI algorithms, and I have to choose one [method of machine learning](https://en.wikipedia.org/wiki/Machine_learning#Models) to learn about. I chose [genetic algorithms](https://en.wikipedia.org/wiki/Genetic_algorithm) because they made sense, there were other choices, and I originally chose [decision trees](https://en.wikipedia.org/wiki/Decision_tree) to use however it got too confusing (from math and lots of theory) so I went to a more comprehendible one (keep the good outcomes).
