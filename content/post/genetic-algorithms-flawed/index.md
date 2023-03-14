@@ -1,6 +1,6 @@
 ---
 title: Are Genetic Algorithms flawed?
-date: '2023-03-06'
+date: '2023-03-14'
 description: Is the process flawed and makes worse copies of humans?
 lastmod: '2023-03-14'
 categories:

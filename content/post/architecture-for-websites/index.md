@@ -1,6 +1,6 @@
 ---
 title: Architecture for websites
-date: '2023-03-06'
+date: '2023-03-14'
 description: Are they needed create websites? Or are they just recommended?
 lastmod: '2023-03-14'
 categories:
