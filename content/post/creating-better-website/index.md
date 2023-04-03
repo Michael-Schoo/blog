@@ -1,0 +1,153 @@
+---
+title: Creating a better website
+date: '2023-04-03'
+description: Adding Ajax, better application structure, and search.
+lastmod: '2023-04-03'
+categories:
+    - web-dev
+tags:
+    - From Tasks
+---
+
+## Overview
+
+How has your week been? Has it been like mine? Well, as you are so curios at my week, here is how it went… I woke up many times, then went to school and learned things (including IT). In that time, I learned how to simplify and improve a website, and some data science (but more on that in another post). Making a website to its full potential by adding simple things can help more than expected. As this is the last week before holidays, next posts will be about me applying my knowledge instead of learning (because I will be getting a new assignment). Anyway, enjoy me talking about Flask and random features.
+
+### What was completed
+
+Last time, I touched on translation and how I would probably not use it as it was very complex. However, this week I found out about [Ajax](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xiv-ajax) and how it can be used with the [Microsoft translation service](https://www.microsoft.com/en-us/translator/). While it is never as good as a native speaker translating your text, it is still good in terms of more people can enjoy your work. Embedding the translation service into the website is better because the user doesn’t have to copy your work into their own translator, and as such more user friendly.
+
+To actually use this service, we first have to detect what language it is currently in. If the user already wants those languages, then that's good, otherwise we know what to use. To find out what it is, the [langdetect](https://pypi.org/project/langdetect/) package is very helpful, it is recommended to only check one time and then store the result in the database. The common theme of adding things to the config file still exists, this time it is storing the token from Microsoft. And we also made a function that translates text using their API (providing the source and destination language).
+
+```python
+# *config.py*: Add Microsoft Translator API key to the configuration.
+
+class Config(object):
+    # ...
+    MS_TRANSLATOR_KEY = os.environ.get('MS_TRANSLATOR_KEY')
+```
+
+```python
+# *app/translate.py*: Text translation function.
+
+import json
+import requests
+from flask_babel import _
+from app import app
+
+def translate(text, source_language, dest_language):
+    if 'MS_TRANSLATOR_KEY' not in app.config or \
+            not app.config['MS_TRANSLATOR_KEY']:
+        return _('Error: the translation service is not configured.')
+    auth = {
+        'Ocp-Apim-Subscription-Key': app.config['MS_TRANSLATOR_KEY'],
+        'Ocp-Apim-Subscription-Region': 'westus2'}
+    r = requests.post(
+        'https://api.cognitive.microsofttranslator.com'
+        '/translate?api-version=3.0&from={}&to={}'.format(
+            source_language, dest_language), headers=auth, json=[{'Text': text}])
+    if r.status_code != 200:
+        return _('Error: the translation service failed.')
+    return r.json()[0]['translations'][0]['text']
+```
+
+Because the user choses if and what language to translate to, it is best to make a route instead of re-rendering the whole page. To use the route, we can use the earlier mentioned Ajax and jQuery. This does a HTTP POST to the server with the pages text, and then once the translated copy gets returned, it modifies the content.
+
+```python
+# *app/routes.py*: Text translation view function.
+
+from flask import jsonify
+from app.translate import translate
+
+@app.route('/translate', methods=['POST'])
+@login_required
+def translate_text():
+    return jsonify({'text': translate(request.form['text'],
+                                      request.form['source_language'],
+                                      request.form['dest_language'])})
+```
+
+```html
+<!-- *app/templates/base.html*: Client-side translate function. -->
+
+{% block scripts %}
+    ...
+    <script>
+        function translate(sourceElem, destElem, sourceLang, destLang) {
+            $(destElem).html('<img src="{{ url_for('static', filename='loading.gif') }}">');
+            $.post('/translate', {
+                text: $(sourceElem).text(),
+                source_language: sourceLang,
+                dest_language: destLang
+            }).done(function(response) {
+                $(destElem).text(response['text'])
+            }).fail(function() {
+                $(destElem).text("{{ _('Error: Could not contact server.') }}");
+            });
+        }
+    </script>
+{% endblock %}
+```
+
+Because the requirements of a website may change or evolve over time, it can be good to evaluate how to make a [better application structure](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure). The author of the mega tutorial decided that there are many issues with their original structure, it has a bad authentication subsystem, a bad error subsystem, and a complicated core application. The main change was to allow for simulations connections through making "Blueprints”. [[read](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure) more about what they had to say]
+
+The last feature implemented was a [full-text search](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvi-full-text-search). This is useful in many ways, it removed dependence on search engines and means you can customise what gets shown when a user wants something. The easiest and simplest method is to use the [elasticsearch](https://pypi.org/project/elasticsearch/) library. After installing and adding config an important step is to make the search functions. They basicly add and modify the things inside it’s search, so if there is a new page it should be added to be searchable.
+
+```python
+# *app/search.py*: Search functions.
+
+from flask import current_app
+
+def add_to_index(index, model):
+    if not current_app.elasticsearch:
+        return
+    payload = {}
+    for field in model.__searchable__:
+        payload[field] = getattr(model, field)
+    current_app.elasticsearch.index(index=index, id=model.id, body=payload)
+
+def remove_from_index(index, model):
+    if not current_app.elasticsearch:
+        return
+    current_app.elasticsearch.delete(index=index, id=model.id)
+
+def query_index(index, query, page, per_page):
+    if not current_app.elasticsearch:
+        return [], 0
+    search = current_app.elasticsearch.search(
+        index=index,
+        body={'query': {'multi_match': {'query': query, 'fields': ['*']}},
+              'from': (page - 1) * per_page, 'size': per_page})
+    ids = [int(hit['_id']) for hit in search['hits']['hits']]
+    return ids, search['hits']['total']['value']
+```
+
+Querying/getting results is very simple and all you have to do is give an input and then understand which post is from what ID. This is a very basic implementation compared to Google as there is no autocompletion and is all algorithm not ML to find the “best” result. Assuming you know how Flask works, the next step is to make another page with a form that queries for the search result and then provides that to the user.
+
+```python
+>>> from app.search import add_to_index, remove_from_index, query_index
+>>> for post in Post.query.all():
+...     add_to_index('posts', post)
+>>> query_index('posts', 'one two three four five', 1, 100)
+([15, 13, 12, 4, 11, 8, 14], 7)
+>>> query_index('posts', 'one two three four five', 1, 3)
+([15, 13, 12], 7)
+>>> query_index('posts', 'one two three four five', 2, 3)
+([4, 11, 8], 7)
+>>> query_index('posts', 'one two three four five', 3, 3)
+([14], 7)
+```
+
+## Reflection
+
+### Is it worth it?
+
+The question of making a website better and is it worth it depends on what you want. Making the user happy is good, and in most cases prioritise features that users will enjoy and like. However, it depends on applications, some have different requirements and certain gimmicks (ie translate) may not be a good idea to invest in. Before doing any of this, determine what features would be good and then the benefits of doing so (ie happy users). In my case, I will try to add most of the things listed in the tutorial.
+
+### Have you enjoyed the big tutorial?
+
+Every week reading many posts has been good. I enjoyed how there was a clear methos to sole many problems in making a website. It was also good because I could do some more research on specific components to understand them better (some of them weren’t even flask related). As you may know the things mentioned today was from the last part (before learning how to host the project).
+
+### How would you have improved this term?
+
+To improve this term (if I was to do it again or recommendations for next) is to pay more attention to the tutorial and in general class work. This could be playing around with it more or asking questions. In data science I also should have also spent more time on the content and try to understand it more. A huge factor that could have fixed many problems is time management, if I managed my time better than I could have played around with it more.

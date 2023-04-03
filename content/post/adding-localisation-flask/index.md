@@ -1,9 +1,9 @@
 ---
 title: Adding Localisation
-slug: Adding-Localisation-flask
+slug: adding-localisation-flask
 date: '2023-03-27'
 description: Dates/Times and I18n/L10n.
-lastmod: '2023-02-27'
+lastmod: '2023-03-27'
 categories:
     - web-dev
 tags:
