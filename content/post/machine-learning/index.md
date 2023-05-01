@@ -1,0 +1,45 @@
+---
+title: Machine Learning
+date: '2023-05-01'
+description: Finding something to use that uses ML.
+lastmod: '2023-05-01'
+categories:
+    - data-science
+tags:
+    - From Assignments
+    - Programming
+---
+
+## Overview
+
+AI is very popular these days, but how many people make it. While [AI and ML differ](https://cloud.google.com/learn/artificial-intelligence-vs-machine-learning) (AI is focused on replicating human), they both require Machine Learning (ML). There are many things you can get a computer to learn about. The assignment that was given to us last week is also very broad and just wants us to make a application that is “smart” in one specific way. Aside from that, the last week of last term, I continued on linear regression, and now I should be ready for this assignment (just need an idea). If you only want to know the outcome, wait for June 5th where my last post this term will be (but you will miss context, so read every!).
+
+### What was completed
+
+If you read my web dev post about its new assignment, you will know that there is lots of free will involved. In this assignment that is also the case, and the only requirement is that it has to be using a **machine learning** model and use Python. This allows for endless options (well lots, not unlimited), some examples provided were:
+
+- Cryptography
+- Computer Vision
+- Human-Computer Interaction
+- Artificial Intelligence
+- Machine Learning
+- Home Automation
+- Voice Recognition
+- Text-to-Speech conversion
+- Geolocation services
+
+I am not sure which of these options to do (or anything else). I know that I don’t want to do a ChatGPT type thing because it is very complex, but maybe a very basic chat trained on Reddit or something may be interesting. But first I will do more research into the possible things and then implement it and maybe do this many times until an idea is fully chosen. I want to be able to use this in the real word, so if I do cryptography, I will do it in a way that can be used for many applications involved.
+
+## Reflection
+
+### How do you plan to do this assignment?
+
+My current plan for this assignment is as very basic. I need to choose what to do, this includes what model to use and what it can do. I then need to research how it works and then see what Python library will be best suited to make it. Once the specifics are chosen, I need to start making the ML app. To finish the app, I will need to: test and add new features to the app many times, as well as getting a data source to train on (or training somehow). Somewhere during the making of the app, I will write the presentation (hopefully I won’t do this too last minute). The last step is just submitting everything I have done, and then talking about it to people in 15 minutes (teacher chosen).
+
+### What are you most exited for?
+
+Making an app that does something useful is exciting for me to do. The part that I could be making something that will be interesting or helpful is exciting. This may not stay that fun when I come across bugs that don’t want to be fixed but instead prevent it from working. I also want to make it something that I am proud of, and as such I will be trying to put in effort to achieve that. Like the web dev post said, the presentation part is scary, but I am hoping it is clearer when I finish the main task.
+
+### How different is this to last year's assignment?
+
+This assignment is similar to a degree compared to the last project assignment. Last year’s was about big data and using it in a basic way (making graphs), but this time I still need data but now it needed to do something useful (not just show). In a way it is adding more life because its purpose isn’t just to make graphs but now it can be aiding people with it’s learnt things. Overall, they are different and similar in some ways, this one is just more open ended.
