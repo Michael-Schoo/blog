@@ -1,0 +1,148 @@
+---
+title: Forms and SQL in Flask 
+date: 2023-02-27
+description: How to get user input and store it for later use.
+categories:
+ - web-dev
+tags:
+ - From Tasks
+---
+
+## Overview
+
+Did you know that I leant about [Forms](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iii-web-forms) and [SQL](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database) in [Flask](https://flask.palletsprojects.com/en/2.2.x/) this week, well if you didn’t this post is for you. The forms are the method of getting user input easily and efficiently, and the database was about storing user input so that it can be shown back to them (logins and content). Overall, these are very important parts of a website, and will be helpful when making my own later on (mainly for assignment).
+
+### What was learnt
+
+For creating a web form, all you have is to is define the form requirements (forms.py) and then put variables into a html template (login.py). In this example, the purpose is to make a login page where it asks for user input of username/password and optionally remember login, and then sends it to the server. Most of the code, should already made sence if you understand Flask or read my other posts, but otherwise the html template is what is showing things to the user.
+
+```python
+# *app/forms.py:* Login form
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')
+```
+
+```html
+<!-- *app/templates/login.html*: Login form template -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sign In</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+        </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+```python
+# *app/routes.py:* Login view function
+
+from flask import render_template
+from app import app
+from app.forms import LoginForm
+
+# ...
+
+@app.route('/login')
+def login():
+    form = LoginForm()
+    return render_template('login.html', title='Sign In', form=form)
+```
+
+Now that the user has put their credentials into the form, we need to check if they are correct and then log them into our service. The website will send a POST request to the server and to access the data, we use the same file (now excepting POSTs and GETs) and use the form function which will parse the value. After that we will need to do things with that data, but more on that later.
+
+```python
+# *app/routes.py:* Receiving login credentials
+
+from flask import render_template, flash, redirect
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return redirect('/index')
+    return render_template('login.html', title='Sign In', form=form)
+```
+
+You may want to specify which things are required by putting in validation requirements, and then making a sport to put the error (normally in red below the input). This is optional but very recommended as it provides a way better UX by providing the reason for error, opposed to just saying “something went wrong”.
+
+```html
+<!-- *app/templates/login.html:* Validation errors in login form template -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sign In</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+Now that the form is working (and has validation), we will make a database to store the credentials for the user. To start we will create a SQL like database using [SQLAlchemy](https://www.sqlalchemy.org/) to make storing data easy. This class that is made will also serve as formatting the user for easy use in python (`__repr__()`). Currently (as of the databse post), actually incorporating the `user db` into the website isn’t done yet.
+
+```python
+# *app/models.py:* User database model
+
+from app import db
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    password_hash = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
+```
+
+## Reflection
+
+### How can you elaborate/understand more?
+
+The thing that I can do to elaborate and understand more about this week’s work is to spend more time playing around with the forms and database. It does sound a bit stock standard, but it is really the only ways to understand it. You need to experience for a greater knowledge, and you need understanding to be able to do that. I mean that I can’t just go to the [GitHub repo](https://github.com/miguelgrinberg/microblog/tree/main) and magically know what each bit of code does, I should still read and continue along with the posts and then apply the knowledge into my uses (personally).
+
+### How is all this consistent or inconsistent?
+
+This is very consistent, at least the method is. It is basically just adding to previously known stuff (mainly templating) with new features. I like how the other person’s blog is made because, it is going through nice and easily with very detailed description. This is why I am saying that there is lots of consistency but still learn because it is building apon nicely explained things (not thinking I know nothing every post).
+
+### Is this currently interesting to you?
+
+I would say that this is currently interesting to me (at least mostly). It is interesting to find out how to create web forms easily and know how to apply it. It is also nice to learn how to use the database, even if it isn’t the normal SQL conventions (very similar, just stricter making of it). I am excited to learn how to use the database with the forms (I have a guess, but I want it to be correct), so stay tuned for that!

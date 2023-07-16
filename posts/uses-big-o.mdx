@@ -1,0 +1,68 @@
+---
+title: Uses of Big-O
+date: 2023-02-20
+description: How it can be used to determine speed and time used.
+categories:
+ - data-science
+tags:
+ - From Tasks
+---
+
+## Overview
+
+It seems like it has been a week since last post… This means that I will update you on my progress of Big O. Other than that, nothing much has been done except some cyber security things (for an upcoming competition and knowledge). The further research and understanding weren’t as much as I’d prefer, so I should have some more learning for next week’s entry.
+
+### What was learnt
+
+There are names for the common notations of Big-O. They help to understand what it does, as most people know what constant means, they should understand what happens with this data. Some of the other ones may be easier to look at the notation, but this did simplify the different methods, and means that I understand them better.
+
+| Notation      | Name          |
+| ------------- | ------------- |
+| `O(1)`        | constant      |
+| `O(log(n))`   | logarithmic   |
+| `O(log(n)^c)` | polylogarithm |
+| `O(n)`        | linear        |
+| `O(n^2)`      | quadratic     |
+| `O(n^c)`      | polynomial    |
+| `O(c^n)`      | exponential   |
+
+These notations are more confusing to me, but I can get the general gist with looking at the analogy of less than, equal to, etc… It is basically talking about symbols more than the previous which was naming mathematical equations.
+
+| Notation         | Analogy |
+| ---------------- | ------- |
+| `f(n) = O(g(n))` | `≤`     |
+| `f(n) = o(g(n))` | `<`     |
+| `f(n) = Ω(g(n))` | `≥`     |
+| `f(n) = ω(g(n))` | `>`      |
+| `f(n) = Θ(g(n))` | `=`      |
+
+Using these above tables make it easy to see what happens when you have different things, and it can be helpful for comparing which to use for your use-case. Especially as you can put speed into consideration.
+
+### What other IT related thing did you do?
+
+I did some [PicoCTF](https://picoctf.org/) competitions, these were examples of cyber security things that are used to hide “flags” (information) inside random places. In class, we did three ones from the forensics section and were about getting the flags from a provided file and modifying it in a way that would we see it. **SPOILERS AHEAD!!!**
+
+**Information**
+
+This one was about getting a flag from an image. We first looked at the image hoping that it would be nice and easy by showing the text of it, but instead it was a basic photo of a cat. So, after some thinking we looked at the metadata which showed an encoded/not normal license: `cGljb0NURnt0aGVfbTN0YWRhdGFfMXNfbW9kaWZpZWR9`. It was decided to test this with common encoding methods, where the first was base64. This turned out to be correct as we then got the flag: `picoCTF{the_m3tadata_1s_modified}` which was promptly copied and used.
+
+**Matryoshka doll**
+The next one that got chosen was also an image, just a bit harder. The previous method didn’t work, so we went to work looking at the hex that made up the image. Nothing looked that strange other than that the file size was a bit too big for the image that was shown. But then we looked at the definition of a Matryoshka doll and found that it is something inside another thing. And after some research we found that there was a zip at the bottom of the hex, which was done by searching for the end delimiter, and this was repeated 3 times to get a txt. After opening the zip file, we got the flag: `picoCTF{336cf6d51c9d9774fd37196c1d7320ff}` but I thought it needed to be unencoded as it looked a bit not normal, but turned out that the flag was correct without further modification.
+
+**tunn3l v1s10n**
+
+This one was painful but simple, we got another image, just it was a basic file. Very quickly we determined that it was a broken bmp. However, trying to fix it was the hard part as we don’t know how they work, we thought opening it in different image viewers would solve it (but that didn’t work). So, after some very specific researching of this issue (Googling "tunn3l v1s10n”) we found out that the headers were messed up and needed to be fixed to show the image. The first fix was to make the BMP correct and allow for it to show, but there was no flag just some words. The next fix was to correct the image hight and that allowed the whole image to be shown (which had the flag). Even though we had the flag: `picoCTF{qu1t3_a_v13w_2020}` it was in an image, and it had to be typed out manually…
+
+## Reflection
+
+### Did you enjoy doing Cyber Security?
+
+Doing the cyber security learning instead of the data science Big O was nice. While I could have spent more time with the data science, I did enjoy the change of topic, and the change back to things that were slightly easier. That being said, once I have gotten a better understanding of Big O, I may think that I should have either done more cyber security things or spent more time to understanding the algorithms that Big O is useful for.
+
+### How well do you understand the concepts?
+
+After learning about the common notations of Big-O and their symbols, it's easier to understand the different methods and select the appropriate notation for each use-case. The tables presented in this post make it easy to compare the different notations and consider speed. As for the cyber security learning, I did some competitions and tried to understand the three challenges involving forensics and image manipulation. Overall, I believe that I have a good understanding of the concepts.
+
+### What other topics do you plan to explore in the future?
+
+In the future, I plan to explore more topics related to computer science (or whatever I am currently doing is called). This includes understanding what different algorithms can achieve and the pros and cons between the options. I may also try to visit this again to make sure I understand it while doing the more complex parts. Another thing that interests me is actually trying examples of each to see how and why they are bad/good.

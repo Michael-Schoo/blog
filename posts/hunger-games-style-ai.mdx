@@ -1,0 +1,50 @@
+---
+title: Hunger Games Style AI
+date: 2023-05-22
+description: Instead of text summarizer, I am making a genetic algorithm to play a basic fighting game.
+categories: 
+ - data-science
+tags:
+ - From Assignments
+ - Programming
+---
+
+## Overview
+
+This last week has been interesting… I spent some time on my previous idea of text summarizer, but ultimately decided that it wasn’t a good idea to pursue. I realised that it wasn’t as interesting as I thought and I couldn’t fully understand how to actually make it. However, I did think of something using genetic algorithms (the method that I researched about last term). In short, my new plan is to make a game that uses ML to find the best stats to fight the opponents in.
+
+### What was completed
+
+In this game, I am having 3 customisable stats: speed, damage, and protection. These give certain bonuses, one makes avoiding better, another does more damage to the opponent, and the other absorbs some of the impact. The way I have set it up is they all start at 5 points and randomly get adjusted (adding to randomly) until the sum is 50. The minimum is so that it still has some degree of working if it isn’t set to be high.
+
+To do the game logic, I made 4 files: main, person, day, and fight. The fight file has a class which had the input of 2 people and took turns getting the people to fight each other. The day file was to make matches between people and has lots of fights (and was also done in a class). The person file contained a class which had the stats and the health of the player. And finally, the main file made all the people competing and ran the days until only one person was left (and could run multiple trials to try and get the best stat).
+
+In the start of the day a player can choose to run away and hide or try and run to someone and attack them. If they achieved what they set out on doing, they get motivation (and if they have it the other way around, they lose it). Motivation is very important because it can make your actions more powerful or less depending on if it is greater than 50. In the actual fight the player takes turns with the following: attacking, deafening, and trying to run away. If they attack, the attack is more powerful but if they were defensive, they can survive it better (but less power on attack). If they want to escape, it has a random chance of working where the higher speed gives a higher chance. If you succeed at the escape, you gain motivation but lose lots if you fail (as well as damage). You can also get motivation if you inflict more damage than your opponent did to you.
+
+The inspiration of this was the year 11 class having to fix and extend a text-based game (RPG), and I have done it before, so it reminded me of it. I used certain ideas from it, and other methods of how I did it. I feel proud of what I have done, and am excited to see it better (and maybe later be able to verse the best AI)
+
+Because I was running lots of players at once, I thought about implementing async so that each fight can happen at the same time. However, it turned out to make it slower as it didn’t take that long to do the random tit-for-tat. Either way, I enjoyed being able to work out how it is done, and I may use it to have many “games” happening at once (to learn faster as can have parallel universes).
+
+The main things that I want in the future is:
+
+- more player options (ie witch that has magic or barbarian with more strength)
+- smarter AI (does better moves and leaves less to random)
+- train the AI better (see below)
+
+The way that I want to train it to be better is to do some rounds (like 15) and choose the best player in that. The player is used in another game with random choices but plus or minus 10 points. This goes on to it is +/- 1 and then I can see the ultimate winner. The reason for this steeping is because I saw that it can make good choices but the random is too large so the nudging looks promising.
+
+I am calling it “hunger games” because it is a fight to the death and I am volunteering the computer to verse lots of others… Other than that, there isn’t much that is going to be the same..
+
+## Reflection
+
+### What part was fun?
+
+The part that was fun was making the logic behind the game. This including making the code of the fighting and the basic class for players. I enjoyed trying to make everything as customisable and future proof as possible. This made things slightly harder but also made me feel better about it. Because I could change things easily, I enjoyed seeing how things changed. For example, trying to see the best player, I changed the speed to become better and then the stats preferred it a lot more. I expected it but it was still fun to see.
+
+### What made you change your idea?
+
+As I said before, I changed my idea because I didn’t like the previous. I manly chose it as I couldn’t think of anything better, but now that I have had more time and spend some research into ML and Python, I like my new one. This game centered project lets me be creative and make a game that is interesting and focus on the fun parts and the game itself isn’t the assignment. This allows me to have lots of freedom and not be expected to make a good game (less stress), just one that can show my genetic algorithm.
+
+### What is your vision with this project?
+
+My current vision with this project is to make a fun game. As I said above, I want it to be interesting with more customisations, these could make it more “hunger games” style (could be having districts/players have different bonuses). I also want to be able to verse it and see if a computer is really that good (the AI is going to win tho). I also want tto make the MP not stop at stats and make it learn which actions to do (and not rely on random as much).
