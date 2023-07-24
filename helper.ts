@@ -86,6 +86,9 @@ const lower = (str: string) => str.toLowerCase();
 export function getPosts(filter: { tags?: string[], categories?: string[], limit?: number, offset?: number, postNotIn?: string[] } = {}, sort: { date?: 'asc' | 'desc' } = { date: 'asc' },) {
     let posts = [...allPosts];
 
+    // sort alphabetically
+    posts.sort((a, b) => a.title.localeCompare(b.title));
+
     // sort
     if (sort.date === 'asc') {
         posts = posts.sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)));

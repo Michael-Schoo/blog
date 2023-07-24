@@ -1,10 +1,10 @@
 'use client';
 
-import config, { MenuItemConfig } from '#/config';
+import config from '#/config';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import GetIcon from '../icons/Icon';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { slideToggle } from './menu'
 
 export default function LeftMainMenu() {
