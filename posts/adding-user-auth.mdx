@@ -1,0 +1,100 @@
+---
+title: Adding User and Auth
+description: Implementing register and log-in to my website
+date: 2023-07-31
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+So… I have spent this last week doing web development. In that time, I have fiddled with features as well as understanding how to deploy it well (ie, hosting it online). This week was very important to see how to do the basic features as well as deciding if to go back to Flask (but I didn’t). I hope the next weeks will also contain a useful feature to talk about because it is important to realise the little things as important (I didn’t really do this last time).
+
+### What was completed
+
+After last week’s brainstorming on ideas, I went to make a Next.js website. I used the [create-next-app](https://www.npmjs.com/package/create-next-app) CLI to make the basic template and put that on a hosting provider (so that you can see it live). I chose [Vercel](https://vercel.com/) because they made Next.js and just had a good free tier that I could use. Once I could see that it worked well, I added more things like Databases. The DB I used was [PlanetScale](http://planetscale.com/) (MySQL) because they also had a generous free tier and just seemed to work well with my project. As I didn’t want to write SQL myself, I used an ORM called [Prisma](https://www.prisma.io/) (it just worked well and easily). Some of these things can be changed (mainly the online hosting), I just chose them because of their simplicity and that I wanted something to work before optimising. You can see it live [here](https://online-store-michael.vercel.app/).
+
+The first thing I did to test the database was to create user auth. This was because user management is important for the website (there needs to be used to create items) but also because it was a simple thing to test everything.
+
+The [code below](https://github.com/Michael-Schoo/Online-Store/blob/master/src/app/register/register.tsx) is not the full code for register, but most of the code necessary for checking a username and displaying error or success. There is other fields like email and password, but I felt that this was important. This works by adding a listener to the user’s input and when they change the textbox. It first checks the regex (length and characters allowed) and then sends a request to the server to check if the username is already used.
+
+```tsx
+// ... (more code above)
+// verify that the username is valid (not taken)
+const verifyUsername = async (username: string) => {
+    setUsernameValid(null)
+    setUsernameError(false)
+    if (!username) return setUsernameValid(false)
+
+    // check username regex first
+    const regexValid = usernameRegex.test(username)
+    if (!regexValid) {
+        setUsernameError("Username must be between 3 and 20 characters long and can only contain letters, numbers and underscores")
+        return setUsernameValid(false)
+    }
+
+    const response = await fetch(`/api/register/check-username?${new URLSearchParams({ username })}`)
+
+    const data = await response.json()
+    if (data.available) {
+        return setUsernameValid(true)
+    } else {
+        setUsernameError("Username is already taken")
+        return setUsernameValid(false)
+    }
+}
+
+// ... (more code in between)
+
+<div className={`input-group ${(usernameError || usernameValid) ? "has-validation" : ''}`}>
+    <span className="input-group-text" id="@">@</span>
+
+    <input type="text" className={`form-control ${usernameError ? "is-invalid" : usernameValid === true ? "is-valid" : ""}`} id="displayname" autoComplete="off" aria-describedby="@" required
+        onChange={e => setUsername(e.target.value)}
+    />
+
+    {usernameError && (
+        <div className="invalid-feedback">
+            {usernameError}
+        </div>
+    )}
+
+</div>
+// ... (more code below)
+```
+
+I also made a function to make sure my http requests were going to be at least 1 second because it can look better (see [video](https://www.youtube.com/watch?v=O6ZQ9r8a3iw)). But it was so fast, so I just removed the usage in signup. [[code below](https://github.com/Michael-Schoo/Online-Store/blob/master/src/lib/tools.ts#L13-L22)]
+
+```tsx
+export async function minWait<T extends any>(ms: number, fn: () => Promise<T> | T) {
+    const time = Date.now()
+    const res = await fn()
+    const timePassed = Date.now() - time
+    if (timePassed < ms) {
+        await wait(ms - timePassed)
+    }
+
+    return res
+}
+```
+
+This works by getting the time at the start of the async function and the end when it is resolved and waits the remaining time until 1 second has been completed (but if over 1 second, do nothing extra). The reason for the >1 second is if the user has slow internet (don’t want to add more time if it is long).
+
+I had a big fancy feature for my login page but then decided to go back to basics. I originally had it so that every keyboard input gets sent to login as fast as possible, to only when exit focus, and finally decided on just when click the button. This was caused by me copying code from register and wanting it to be just as cool. But the main issue was dealing with UX, as the user may be confused by the sudden change of page or error messages (to convey that it is now incorrect). However, an important thing that I only realised after was rate limiting. I haven’t implemented it yet, but I realised that it would have to be higher than good for the spam of inputs (which in return allows hackers to spam loggings faster - not very ethical for the user)
+
+## Reflection
+
+### If you kept using Flask, won’t things be easier?
+
+Well, it could have been easier because I already made code that works for this feature. And that I copied most of the concepts and looks from the previous project and needed to spend time converting it. But I mainly chose it for the later stages where I want to reuse components (not make login screens). The benefits are that I can have one button style and just having a central code for reused components (and making it easier to modify and look at).
+
+### Why didn’t you add more features?
+
+Well, I could have added lots of features, but I wanted to make sure it was good before going further. Because of all the time I have to do this, I wanted to make sure it was done well and not just ok. I also had some experience from before which allowed me to know what was important and what is the minimum I can do to have it working (which was useful for just testing the DB and password hashing).
+
+### How did you peers help you?
+
+My peers were exceptionally helpful this week. I got to show them my website and got lots of feedback. Even though they kept on saying I was over engineering the login, it was helpful to have others input into things. They basically said that fancier is not always better. I hope I can continue to ask them for feedback because the target audience for my website isn’t me (I also may miss some things in my analysis that they might find).

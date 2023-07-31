@@ -1,0 +1,64 @@
+---
+title: Multiple Species
+description: Relooking at my code and adding new features
+date: 2023-07-31
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+Once upon a time there was a blog, and this blog had a summary of a person's work in the past week for data science. The most important thing that this blog will cover is my new features for the game (basic text RPG that is for a genetic algorithm). This game is currently featureful but is going to be very impressive soon. The main motivation for this is the assignment, but I do like it (so there is still motivation to do this).
+
+### What was completed
+
+After I decided that I want to continue with my last project, I needed to remember what I actually did there (it was over 5 weeks ago). As I wrote all the code, it wasn’t that hard to understand, but it just too a small amount of time to see what needed to be done to continue with my goal. When I knew how to implement the different species, I copied the Human class and added the penalties (a multiplier of benefits that can reduce or improve stats). I was amazed at how much I had actually done for implementing it. I had everything set to work and only required a few big fixes (mainly float numbers).
+
+My very descriptive naming for a person that has bad damage/protection but good health [[code](https://github.com/Michael-Schoo/Hunger-Games/blob/main/person/HealthyButWeak.py)].
+
+```python
+class HealthyButWeak(Person):
+    def __init__(self, speed, damage, protection):
+        super().__init__(speed, damage, protection)
+    
+    penalties = {
+        'speed': 1,
+        'damage': 0.5,
+        'protection': 0.5,
+        'health': 2,
+        'motivation': 1
+    }
+```
+
+A function to most of the time get the same specie as the best previous player [[code](https://github.com/Michael-Schoo/Hunger-Games/blob/main/random_person.py#L88-L96)]. This works by getting a random number and checking if it is part of the 75% (I want to still allow for some new person types) and then finding the right class from the list. There would be may ways to improve this code, but I was going for something that worked over the quality to being with. The reason it is bad is because the amount of code that is run for each player choice (can be lots of waisted time when lots of players are used).
+
+```python
+def choose_specie(prev_specie: str) -> Person:
+    # 75% of same
+    random_num = random.randint(0, 100)
+    if random_num < 75 and prev_specie is not None:
+        for person in people_options:
+            if person.__class__.__name__ == prev_specie:
+                return person
+
+    return random.choice(people_options)
+```
+
+I still need to get better genetic algorithm which means have more winners and let them bread together. Aside from that, the GUI will be beneficial for observing the progress. 
+
+## Reflection
+
+### Why was this the only thing you did?
+
+While it seems small, I did spend time to understand my code and see what needs fixing to get it the multiple species to work well. I didn’t know how nice I was to myself in terms of making it almost work. I also spend majority of the time for web-dev because that seemed exiting. I just need to continue to add features to this project and not forget about it. I did have to lots of testing to make sure it worked (and testing usually isn’t shown as much).
+
+### Are you glad that you made it future proof?
+
+Yes, I am very glad that I have tried to make things as extensible as possible. I remembered that I did do some things to make it work, but I didn’t remember that I almost had it working and only needed testing to make sure it worked. However, I purposely didn’t test it for the last assignment because of time needed to test it (and it didn’t feel that worth it for that assignment). It also allows me to say that this time it is improved with another feature (as I need to make it better and not use the same assignment).
+
+### What are you most exited to do with this project?
+
+There are many things that I am exited to have but not necessarily to make. The main thing that I want to implement next is a GUI. This should allow a me to have a better understanding of how it is learning throughout the different processes. However, I am not sure how to implement it well yet as I need some way to communicate efficiently (and not slowing down everything else). I also should sometime optimise the code to run faster (as time = money).
