@@ -1,0 +1,147 @@
+---
+title: Changing UI Frameworks
+description: Using Shadcn UI instead of Bootstrap because it is more customisable.
+date: 2023-08-07
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+I see that you are interested in me changing away from [Bootstrap](https://getbootstrap.com/) and you might wonder why and what other things I have done this week. I don’t have much against Bootstrap, it was more that I found out about [shadcn/ui](https://ui.shadcn.com/). I saw how well it integrated into React and was more designed as a base style that I can modify to my liking. It basically downloads its code for each component to the project folder where I can customise it. Another thing I like about it is that it uses tailwind which is a nice addition.  
+
+### What was completed
+
+I didn’t have many pages, so it wasn’t too hard to change the looks for it. I basically changed the login page to be a card centered in the middle of the display and tried to minimise the errors shown to the user. In my opinion, this is a better UX and should encourage more usage for potential customers (or just uses of the site).
+
+An example of a minor but substantial change was the [login page](https://github.com/Michael-Schoo/Online-Store/blob/master/src/app/login/login.tsx). They both implement the styles of containers and input boxes but have different UI for doing so. I would say that Bootstrap is more for making “fun” websites and chadcn/ui is more “serous”, but I can customise it to my liking. I stared off as an experiment (stating with login) and then quickly converted everything else to also use the components. I don’t know when I will go about changing the actual component code, but it won’t be that soon (unless it really isn’t what I want)
+
+The main changes that I discovered is that chadcn doesn’t have as many styles for components. I was trying to implement the form validation, but it did not have anything for me to do. This forced me to either go back or make those styles myself. I chose to just copy a few classes, and then remove the import of Bootstrap. With this, I also decided to simplify the validation ant not change the input’s border colour and only display an icon (tick or cross).
+
+```html
+<!-- Bootstrap -->
+<main className="container pt-3 text-start">
+    <form onSubmit={handleAction} className="needs-validation">
+        <h1 className="h3 mb-3 fw-normal">Please login</h1>
+        {/* email */}
+        <div className="col-md-4">
+            <label htmlFor="email">
+                Email address
+            </label>
+            <input type="email" className={`form-control ${error ? "is-invalid" : ""}`} id="email" required
+                onChange={e => setEmail(e.target.value)}
+            />
+            {error && (
+                <div className="invalid-feedback">
+                    Invalid email or password
+                </div>
+            )}
+        </div>
+        <br />
+        {/* password */}
+        <div className="col-md-4">
+            <label htmlFor="password">
+                Password
+            </label>
+            <input type="password" className={`form-control ${error ? "is-invalid" : ''}`} id="password" required
+                onChange={e => setPassword(e.target.value)}
+            />
+            {error && (
+                <div className="invalid-feedback">
+                    Invalid email or password
+                </div>
+            )}
+        </div>
+        <br />
+        <button className="btn btn-lg btn-primary" type="submit">Sign in</button>
+    </form>
+</main>
+```
+
+```html
+<!-- chadcn/ui -->
+<form onSubmit={handleAction} className="grid sm:min-h-[calc(100vh-4rem)] place-items-center p-4 sm:p-0">
+  <Card className="w-full sm:w-96 m-10">
+      <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl">Login to your account</CardTitle>
+          <CardDescription>
+              Enter your email below to login to your account
+          </CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="me@example.com"
+                  className={error ? "invalid-input" : ""}
+                  onChange={e => setError(false)}
+              />
+          </div>
+          <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" placeholder="********"
+                  className={error ? "invalid-input" : ""}
+                  onChange={e => setError(false)}
+              />
+          </div>
+          {error && (
+              <div className="text-destructive -mt-4">
+                  Invalid email or password
+              </div>
+          )}
+      </CardContent>
+      <CardFooter>
+          <Button className="w-full" role="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Login
+          </Button>
+      </CardFooter>
+  </Card>
+</form>Reflection
+```
+
+If I was to look at the code that I get provided, some of components use another package but use tailwind for UI. This means that I don’t have the ability to do minor changes to the functionality, but I still can change the styles easily (and the functionality if I re-write it). Overall, I like whoever created this because it gives me a good base design that I can make fit in to whatever I create. If I was still using Flask, I would need to rely on styles a lot more (to minimise duplicated code).
+
+```jsx
+// label.txt
+"use client"
+
+import * as React from "react"
+import * as LabelPrimitive from "@radix-ui/react-label"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const labelVariants = cva(
+  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+)
+
+const Label = React.forwardRef<
+  React.ElementRef<typeof LabelPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
+    VariantProps<typeof labelVariants>
+>(({ className, ...props }, ref) => (
+  <LabelPrimitive.Root
+    ref={ref}
+    className={cn(labelVariants(), className)}
+    {...props}
+  />
+))
+Label.displayName = LabelPrimitive.Root.displayName
+
+export { Label }
+```
+
+### But you were adamant of using Bootstrap last week?
+
+Well, I more meant using a UI library instead of creating everything from scratch like I have done in the past. For some previous website that I have made, I either went overboard with styles (so much hover and unnecessary things) or did it so basic that it was boring. My aim for this year is to focus on the important things and only do the less important thins (ie custom styles) when I have finished the important and actually need to do it.
+
+### What are your plans for UI now?
+
+Aside from adding more features, I want to add color to the buttons and things as it will give the UI some more life. However, I haven’t done it so far because color is one of the last things needed to do so that I don’t go overboard with chaos (and allows for me to focus on the layout first). I also plan to revisit some of the pages again and if I have a standardised UI, I can update that (or at least a better idea on how things should operate). And for next week, I will do some cool things with this framework, but mainly deal with adding features.
+
+### Are you glad for this large time available?
+
+Without this large time, I won’t be able to change my mind many times. The large timeframe allows for me to try things and learn from it while be having the ability of change that specific project and not needing to wait for the next time. I normally would find the cool item, but then get slightly sad because I won’t be able to use it (and then sometimes I forget about it…). This is why I have done so many things differently then before. While I am trying to minimise it, I do like this particular change.

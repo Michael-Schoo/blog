@@ -1,0 +1,124 @@
+---
+title: GUI isn’t so simple to implement
+description: Most libraries for creating separate windows don’t work well for my use case.
+date: 2023-08-07
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+Hmm, a week, a month, or a day has passed since last post… Well, none really as the web dev one was just above this, but this has been a week since last data science post so here is my learnings and progress for a week. I didn’t achieve that much because I was trying and testing other things which weren’t working well unfortunately. I had big plans and had imagined something cool but ended up choosing a simpler and more basic approach to convey similar data (but probably worse).
+
+### What was completed
+
+I started by researching many ways to create a Graphical user interface (GUI) in Python. I found out about [tkinter](https://docs.python.org/3/library/tkinter.html) and got exited because I saw many things that I can do with it (including adding buttons). However, when I actually tried to use it in my hunger games project, it didn’t seem to work well. This was because it was designed to block the main thread for as long as the window is open. It has certain use cases, but for my project it causes issues because I was wanting to use it to stream the results of my the matches to it. Basically, I cant stream events if they never happen… This lead me to give up and go to something more basic that I know how to do.
+
+The console doesn’t have much customisation, but it can still do good UI with its monospace font and tables. I chose to make a table that contained the thread and game number as well as the best player (added when it is chosen). It is technically still the “GUI” just not as interactive as would have liked. I do like how the data is way easier to read now and it lookes more fancy now… In the furture I want to add colour to the threads (or game) because it should also add greater understanding.
+
+```python
+from stats import Stats
+from tabulate import tabulate
+
+class GUI():
+    def __init__(self, stats: Stats):
+        self.stats = stats
+
+    in_progress = False
+
+    def update(self):
+        # only run if not already running (to prevent weird console output)
+        # wait until it is done (shouldnt't be that long)
+        while self.in_progress: pass
+        self.in_progress = True
+
+        # get the data
+        average_data = self.stats.average_data.copy()  # the average for each game
+        best_data = self.stats.average_data.copy()  # the best for each game
+
+        # sort best_data (by thread_num, then game_num)
+        best_data = sorted(best_data.items(), key=lambda x: (x[0][0], x[0][1]))
+        table = []
+        headers = ["Thread", "Game", "Specie", "Speed", "Damage", "Protection", "Remaining Health"]
+
+        # Iterate over the best_data
+        for (thread_num, game_num), best_stats in best_data:
+            stats = best_stats.get('stats', {})
+
+            # Add a row to the table
+            row = [
+                thread_num+1,
+                game_num,
+                stats.get('specie'),
+                stats.get('speed'),
+                stats.get('damage'),
+                stats.get('protection'),
+                best_stats.get('winner_remaining_health'),
+            ]
+            table.append(row)
+        
+        # Print the table
+        tbl = tabulate(table, headers=headers, tablefmt="pipe", floatfmt=".2f")
+        
+        # Clear the console
+        print("\033[H\033[J")
+        print(tbl)
+
+        self.in_progress = False
+```
+
+This code above basically gets the best data and sorts it so that the thread and game num are ordered (not as much jumbled). It makes sure to get the stats (specie, speed, damage and protection) as well as the health that the winner had. This is to show the user how things have changed (without making a graph). The generation of the table is basic because I have outsourced it to the library [tabulate](https://pypi.org/project/tabulate/) and it seems to make good a looking table.
+
+An example result for 3 threads and 10 games with 1,000 players:
+
+```markdown
+|   Thread |   Game | Specie           |   Speed |   Damage |   Protection |   Remaining Health |
+|---------:|-------:|:-----------------|--------:|---------:|-------------:|-------------------:|
+|        1 |      1 | MotivatedButWeak |   15.04 |    22.64 |        12.31 |              75.97 |
+|        1 |      2 | HealthyButWeak   |    5.00 |    27.35 |        17.65 |              62.81 |
+|        1 |      3 | HealthyButWeak   |    5.00 |    25.89 |        19.11 |              44.81 |
+|        1 |      4 | SlowButStrong    |   17.29 |    19.21 |        13.51 |              38.61 |
+|        1 |      5 | Human            |    5.00 |    27.20 |        17.80 |              27.99 |
+|        1 |      6 | SlowButStrong    |    5.00 |    24.24 |        20.76 |              27.92 |
+|        1 |      7 | SlowButStrong    |    5.00 |    26.97 |        18.03 |              22.23 |
+|        1 |      8 | HealthyButWeak   |    5.00 |    23.55 |        21.45 |              22.99 |
+|        1 |      9 | Human            |    5.00 |    24.76 |        20.24 |              24.05 |
+|        1 |     10 | MotivatedButWeak |    5.00 |    24.72 |        20.28 |              15.64 |
+|        2 |      1 | SlowButStrong    |    5.00 |    31.65 |        13.35 |              78.83 |
+|        2 |      2 | Human            |   15.08 |    22.25 |        12.66 |              55.94 |
+|        2 |      3 | SlowButStrong    |    5.00 |    28.88 |        16.12 |              45.64 |
+|        2 |      4 | Human            |   16.20 |    20.96 |        12.84 |              39.70 |
+|        2 |      5 | HealthyButWeak   |   16.73 |    19.52 |        13.75 |              36.22 |
+|        2 |      6 | HealthyButWeak   |   17.21 |    18.09 |        14.70 |              30.20 |
+|        2 |      7 | MotivatedButWeak |   16.34 |    19.35 |        14.31 |              24.27 |
+|        2 |      8 | SlowButStrong    |   17.00 |    18.48 |        14.52 |              28.95 |
+|        2 |      9 | HealthyButWeak   |    5.00 |    25.20 |        19.80 |              21.04 |
+|        2 |     10 | HealthyButWeak   |    5.00 |    25.62 |        19.38 |              20.73 |
+|        3 |      1 | SlowButStrong    |   15.43 |    23.13 |        11.44 |              75.90 |
+|        3 |      2 | SlowButStrong    |   15.68 |    21.34 |        12.98 |              56.48 |
+|        3 |      3 | HealthyButWeak   |    5.00 |    27.46 |        17.54 |              52.25 |
+|        3 |      4 | MotivatedButWeak |   18.79 |    18.12 |        13.09 |              46.56 |
+|        3 |      5 | HealthyButWeak   |    5.00 |    26.17 |        18.83 |              37.96 |
+|        3 |      6 | Human            |    5.00 |    24.91 |        20.09 |              26.26 |
+|        3 |      7 | SlowButStrong    |   16.45 |    18.58 |        14.97 |              32.05 |
+|        3 |      8 | HealthyButWeak   |    5.00 |    25.15 |        19.85 |              21.61 |
+|        3 |      9 | SlowButStrong    |    5.00 |    24.00 |        21.00 |              19.40 |
+|        3 |     10 | MotivatedButWeak |    5.00 |    23.97 |        21.03 |              16.05 |
+```
+
+## Reflection
+
+### So, this week wasn’t the best so far?
+
+No, this week wasn’t the best in terms of work achieved. I tried to make it fancy, but there wasn’t a simple way of doing so (it was never going to be the feature of the product). This lead me to still do what I wanted just in a different way as intended. It was still better than some weeks ago, but I still want to achieve a good amount each weak (so not as much stress in the final weeks).
+
+### Will you ever revisit this?
+
+While I am finished this for the time being, I will keep this at the top of my head and research more about it later and possibly implement it later. However, that may be after this assignment is done, so don’t expect to see that promised GUI involved with this project. With this console version, I plan to add color to make the threads clearer and separated (this shouldn’t take too long, so it even be done for next week’s post).
+
+### But do you enjoy this change
+
+Yes, with my small testing it greatly improved my understanding on what was happening. In some ways it was worce for reading data (from all the flashing from removing before re-adding), but if it isn’t changing too fast, it provides a good comparisen tool.It was also fun to make once it was decided that should just use console. I hope that it does get improved and inpires others to not neglect UX from their projects (which I did because I wanted a project first).
