@@ -3,23 +3,15 @@
 import { useEffect } from "react";
 import HashIcon from "../icons/Hash"
 import { setupScrollspy } from "./scrollspy";
+import { HeadingNode } from "#/helper";
 
-
-interface Item {
-    hash: string,
-    title: string,
-    items?: Item[]
-}
-
-export type TableOfContentsItem = Item
 
 interface TableOfContentsSidebarProps {
-    items: Item[]
+    headings: HeadingNode[]
 }
 
-
-export default function TableOfContentsSidebar({ items }: TableOfContentsSidebarProps) {
-    if (!items?.length) {
+export default function TableOfContentsSidebar({ headings }: TableOfContentsSidebarProps) {
+    if (!headings?.length) {
         return null
     }
 
@@ -41,7 +33,7 @@ export default function TableOfContentsSidebar({ items }: TableOfContentsSidebar
                 <div className="widget--toc">
                     <nav id="TableOfContents">
                         <ol>
-                            {items.map((item) => <TOCItem item={item} key={item.hash} />)}
+                            {headings.map((item) => <TOCItem item={item} key={item.slug} />)}
                         </ol>
                     </nav>
 
@@ -53,18 +45,18 @@ export default function TableOfContentsSidebar({ items }: TableOfContentsSidebar
     )
 }
 
-function TOCItem({ item }: { item: Item }) {
+function TOCItem({ item }: { item: HeadingNode }) {
     return (
 
         <li>
-            <a href={`#${item.hash}`}>
-                {item.title}
+            <a href={`#${item.slug}`}>
+                {item.text}
             </a>
 
-            {!!item.items.length && (
+            {!!item.children.length && (
                 <ol>
-                    {item.items.map((item) => (
-                        <TOCItem item={item} key={item.hash} />
+                    {item.children.map((item) => (
+                        <TOCItem item={item} key={item.slug} />
                     ))}
                 </ol>
             )}

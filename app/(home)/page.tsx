@@ -26,7 +26,7 @@ export default function Home({ params }: { params: { page?: string } }) {
   return (
     <>
       <section className="article-list">
-        {posts.map((post) => <ArticleListItem post={post} key={post._id} />)}
+        {posts.map((post) => <ArticleListItem post={post} key={post.id} />)}
 
       </section>
 

@@ -1,6 +1,5 @@
 import config from '#/config'
 import { compareDesc } from 'date-fns'
-import { TableOfContentsItem } from './components/sidebar/TableOfContents'
 import { allPosts } from 'contentlayer/generated'
 
 export function getTagInfo(tag: string) {
@@ -25,65 +24,49 @@ export function simplifyHeading(heading: string): string {
     return heading.replace(/[^a-zA-Z0-9 ]/g, '').replace(/ /g, '-').toLowerCase()
 }
 
-export function getTableOfContents(mdxCode: string): TableOfContentsItem[] {
-    const lines = mdxCode.split('\n')
+export interface HeadingData {
+    level: number;
+    slug: string;
+    text: string;
+}
 
-    let lvTop = 1;
+export interface HeadingNode extends HeadingData {
+    children: HeadingNode[];
+}
 
-    const items = []
-    for (const [id, heading] of lines.entries()) {
-        const result = heading.match(/^(#+) (.*)/);
-        if (!result) continue;
+// Serialize heading data into a hierarchical tree structure where lower level headings are children of higher level headings.
+export function serializeHeadings(headings: HeadingData[]): HeadingNode[] {
+    const tree: HeadingNode[] = [];
+    const stack: HeadingNode[] = [];
 
-        // check codeblock (check if ``` is an even number)
-        const codeBlock = lines.slice(0, id).filter((line) => line.startsWith('```'));
-        if (codeBlock && codeBlock.length % 2 === 1) continue;
+    for (const heading of headings) {
+        const node: HeadingNode = {
+            level: heading.level,
+            text: heading.text,
+            slug: heading.slug,
+            children: [],
+        };
 
-        const level = result[1].length;
-        const title = result[2].trim();
-        const hash = simplifyHeading(title);
-
-        // modify lvTop
-        if (level < lvTop) {
-            lvTop = level;
-        }
-
-        items.push({
-            level,
-            title,
-            hash,
-        });
-    }
-
-    const result: TableOfContentsItem[] = [];
-    const stack: (TableOfContentsItem & { level: number })[] = [];
-
-    for (const item of items) {
-        const { level, title, hash } = item;
-        const newItem: TableOfContentsItem & { level: number } = { title, hash, items: [], level };
-
-        // pops everything that is greater than or equal to level
-        while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+        while (stack.length > 0 && stack.at(-1)!.level >= node.level) {
             stack.pop();
         }
 
-        if (stack.length > 0) {
-            stack[stack.length - 1].items.push(newItem);
+        if (stack.length === 0) {
+            tree.push(node);
         } else {
-            result.push(newItem);
+            stack.at(-1)!.children.push(node);
         }
 
-        stack.push(newItem);
+        stack.push(node);
     }
 
-
-    return result;
+    return tree;
 }
 
 const lower = (str: string) => str.toLowerCase();
 
 
-export function getPosts(filter: { tags?: string[], categories?: string[], limit?: number, offset?: number, postNotIn?: string[] } = {}, sort: { date?: 'asc' | 'desc' } = { date: 'asc' },) {
+export function getPosts(filter: { tags?: string[], categories?: string[], limit?: number, offset?: number, postNotIn?: string[] } = {}, sort: { date?: 'asc' | 'desc'} = { date: 'asc' }) {
     let posts = [...allPosts];
 
     // sort alphabetically

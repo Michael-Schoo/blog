@@ -9,7 +9,7 @@ export default function ArticleListItem({ post, children, mainArticle, allowRela
     const tags = post.tags.map(tag => getTagInfo(tag));
     const categories = post.categories.map(category => getCategoryInfo(category));
 
-    let relatedContent = mainArticle && allowRelatedContent ? getPosts({ categories: post.categories, tags: post.tags, limit: 5, postNotIn: [post._id] }) : [];
+    let relatedContent = mainArticle && allowRelatedContent ? getPosts({ categories: post.categories, tags: post.tags, limit: 5, postNotIn: [post.id] }) : [];
 
     return (
         <>
@@ -70,7 +70,7 @@ export default function ArticleListItem({ post, children, mainArticle, allowRela
                     <div className="related-content">
                         <div className="flex article-list--tile">
                             {relatedContent.map(post => (
-                                <article key={post._id}>
+                                <article key={post.id}>
                                     <Link href={post.url}>
                                         <div className="article-details">
                                             <h2 className="article-title">{post.title}</h2>

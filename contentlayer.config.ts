@@ -2,6 +2,7 @@ import { defineDocumentType, makeSource } from 'contentlayer/source-files'
 import highlight from 'rehype-highlight'
 import remarkUnwrapImages from 'remark-unwrap-images'
 import remarkGfm from 'remark-gfm'
+import GithubSlugger from 'github-slugger';
 
 
 const Post = defineDocumentType(() => ({
@@ -49,11 +50,37 @@ const Post = defineDocumentType(() => ({
     computedFields: {
         url: {
             type: 'string',
-            resolve: (doc) => `/p/${doc._raw.flattenedPath.replaceAll(' ', '-')}`,
+            resolve: (doc) => `/p/${doc.id}`,
+        },
+        id: {
+            type: 'string',
+            resolve: (doc) => doc._raw.flattenedPath.replaceAll(' ', '-'),
         },
         readingTime: {
             type: 'string',
             resolve: (doc) => calculateReadingTime(doc.body.raw),
+        },
+        headings: {
+            type: 'json',
+            resolve: async (doc) => {
+
+                // first remove code blocks
+                const regXCode = /```[\s\S]*?```/g;
+                const bodyWithoutCode = doc.body.raw.replaceAll(regXCode, '');
+
+                // get the headings
+                const regXHeader = /\n(?<flag>#{1,6})\s+(?<content>.+)/g;
+                const slugger = new GithubSlugger();
+
+                return Array.from(bodyWithoutCode.matchAll(regXHeader)).map(({ groups }) => {
+                    const content = groups?.content;
+                    return {
+                        level: groups?.flag?.length,
+                        text: content,
+                        slug: content && slugger.slug(content),
+                    };
+                });
+            },
         },
     }
 }))

@@ -32,7 +32,7 @@ export function FilteredList({ posts, category, mainName = 'Section' }: Filtered
 
             <section className="article-list--compact">
                 {posts.map((post) => (
-                    <ArticleListItemCompact item={post} key={post._id} />
+                    <ArticleListItemCompact item={post} key={post.id} />
                 ))}
             </section>
         </>
@@ -121,7 +121,7 @@ export function ArchiveList({ posts, categories }: ArchiveListProps) {
 
                     <div className="article-list--compact">
                         {posts.map((post) => (
-                            <ArticleListItemCompact item={post} key={post._id} />
+                            <ArticleListItemCompact item={post} key={post.id} />
                         ))}
 
                     </div>

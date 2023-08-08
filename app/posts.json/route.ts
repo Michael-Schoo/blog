@@ -12,6 +12,7 @@ export async function GET() {
         date: post.date,
         slug: post.url,
         tags: post.tags,
-        categories: post.categories
+        categories: post.categories,
+        headings: post.headings,
     })))
 }

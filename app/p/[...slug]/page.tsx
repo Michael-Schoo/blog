@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import TableOfContentsSidebar from '#/components/sidebar/TableOfContents'
 import Footer from '#/components/Footer'
 import ArticleListItem, { } from '#/components/ArticleListItem'
-import { getTableOfContents, getTagInfo, simplifyHeading } from '#/helper'
+import { serializeHeadings, getTagInfo, simplifyHeading } from '#/helper'
 import type { MDXComponents } from 'mdx/types'
 import Link from 'next/link'
 import CopyCodeButton from '#/components/MDX/CopyCodeButton'
@@ -13,24 +13,24 @@ import Clock from '#/components/MDX/Clock'
 import { Metadata } from 'next'
 import config from '#/config'
 
-export const generateStaticParams = async () => allPosts.map((post) => ({ slug: post._raw.flattenedPath.replaceAll(' ', '-').split('/') }))
+export const generateStaticParams = async () => allPosts.map((post) => ({ slug: post.id?.split('/') }))
 
 export const generateMetadata = ({ params }): Metadata => {
-  const post = allPosts.find((post) => post._raw.flattenedPath.replaceAll(' ', '-') === params.slug.join('/'))
+  const post = allPosts.find((post) => post.id === params.slug.join('/'))
 
-  const url = `/p/${post._raw.flattenedPath.replaceAll(' ', '-')}`
+  if (!post) return notFound();
 
   return {
     title: post.title,
     alternates: {
-      canonical: url
+      canonical: post.url
     },
     description: post.description,
     openGraph: {
       type: 'article',
       title: post.title,
       description: post.description,
-      url: url,
+      url: post.url,
       modifiedTime: new Date(post.date).toISOString(),
       publishedTime: new Date(post.date).toISOString(),
       tags: post.tags.map((tag) => getTagInfo(tag).name),
@@ -71,17 +71,16 @@ const mdxComponents: MDXComponents = {
 
 const PostLayout = ({ params }: { params: { slug: string[] } }) => {
 
-  const post = allPosts.find((post) => post._raw.flattenedPath.replaceAll(' ', '-') === params.slug.join('/'))
-
+  const post = allPosts.find((post) => post.id === params.slug.join('/'))
   if (!post) return notFound();
 
   const Content = getMDXComponent(post.body.code)
 
-  const tableOfContents = getTableOfContents(post.body.raw)
+  const tableOfContents = serializeHeadings(post.headings)
 
   return (
     <>
-      <TableOfContentsSidebar items={tableOfContents} />
+      <TableOfContentsSidebar headings={tableOfContents} />
 
       <main className='article-page main full-width'>
         <ArticleListItem post={post} mainArticle>
