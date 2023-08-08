@@ -48,13 +48,13 @@ const Post = defineDocumentType(() => ({
         }
     },
     computedFields: {
-        url: {
-            type: 'string',
-            resolve: (doc) => `/p/${doc.id}`,
-        },
         id: {
             type: 'string',
             resolve: (doc) => doc._raw.flattenedPath.replaceAll(' ', '-'),
+        },
+        url: {
+            type: 'string',
+            resolve: (doc) => `/p/${doc._raw.flattenedPath.replaceAll(' ', '-')}`,
         },
         readingTime: {
             type: 'string',
