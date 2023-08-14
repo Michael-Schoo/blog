@@ -1,0 +1,82 @@
+---
+title: Cool things like uploading files
+description: Using uploadthing to easily allow users to upload images.
+date: 2023-08-14
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+So, things occurred in my web dev project. I implemented things and needed to come up with solutions to fix newly created issues. This week I focused on the creation of listings for my online store. I decided to focus on that because I need to create listings easily to be able to test the UI of listing page (and I don’t want to write SQL manually to add to DB). The only thing different for next week is that I have the in-class exam prep (for the exam in following week), so don’t expect many updates for this in the next 2 weeks.
+
+### What was completed
+
+I did lots of research on how to upload images (/assets) to a S3 like service, and this didn’t give me much luck as I was trying to find a free one. I was almost going to store the war bytes in the DB until I saw [uploadthing](https://uploadthing.com/), not only does it have an excellent free tier, but it also simplifies the uploading so that my server doesn’t need to actually be sent the image (saving bandwidth costs).
+
+> *"For some reason it was easier to set up a database that does millions of operations per second all over the world than it is to upload a single file in your web app”* (Uploadthing, 2023)
+
+From the website, it suggests that finding a database is easy, but actually hosting files is not such a good experience. I agree with this as I could set up my [Planetscale](https://planetscale.com/) database very quickly (and had so many alternatives), but it took me a while until I found this with minimal alternatives (which are way worse).
+
+To implement the uploading files client side, all I had to do was import the upload drop-zone component with basic config. This just worked first try, and I only had to do some tweaking to make it better. The main issue is that I have with this solution is that their UI design is different to mine and can’t be customised, so it looks a bit out of the place. However, as the components are open source, I can just fix them myself or just deal with it (and I can still use the service without using their library).
+
+```tsx
+<UploadDropzone
+  endpoint="listingImages"
+  onClientUploadComplete={(res) => {
+    addImages(res?.map(f => f.key) || [])
+  }}
+  onUploadError={(error) => {
+    alert(`ERROR! ${error.message}`);
+    console.log(error)
+  }}
+/>
+```
+
+An issue that I came across is that if the user uploads multiple images, but one fails, the whole part is discarded. This should only error for too large files or exceptionally rare cases, so I hope it won’t cause too much of an error.
+
+I did come up with a solution to delete files if they were either never used or failed to upload. My solution was to add every file to the DB with the user attached, then I every week go through the one that aren’t used and simply remove them. I like how I can use the same query for fetching and deleting because they should return the same data (unless there is an edge case where a file if just too young for initial query but then old enough for second). I could have just sent a list for the items to remove from DB, but I think this is a good method. I chose to add the arbitrary 3 days to ensure that the user doesn’t have any more intention to use the asset (like if they left the tab open for a while).
+
+```ts
+export async function GET(request: Request) {
+  const maxAge = new Date(Date.now() - 1000 * 60 * 60 * 24 * 3) // 3 days
+  
+  // only get unused and older than 3 days
+  const query = {
+    where: {
+      uploadedAt: {
+        lt: maxAge
+      },
+      used: false
+    }
+  }
+  const files = await prisma.uploadedFile.findMany(query )
+
+  // delete the files (and from db)
+  await utapi.deleteFiles(files.map(i => i.key))
+  await prisma.uploadedFile.deleteMany(query)
+
+  return NextResponse.json({
+    amount: files.length
+  })
+}
+```
+
+Another thing that I found cool was that I already had dark mode support, I just needed to enable it.
+
+## Reflection
+
+### You’re not worried about potential abuse?
+
+While there is a lot that I am leaving up with access, I am trusting you (the reader and random people) that it will be fine and I can deal with safeguarding later. Remember that rate limits were invented because of people abusing systems. I am hoping that I can finish the website first and then deal with rate limits when I know how much each route should be accessed. Also, it adds delay having to check for every query (but I hope that it isn’t that large because of the benefits).
+
+### Could your project be bad because you’re using lots of free stuff?
+
+Potentially, its main constraint after my limitations of programing is the free tier of services. I am mainly hosting it because it shows you what it looks like without me needing to screenshot (you can play with it if reading this when published. They seem to be working well enough so unless something bad happens, it should continue to work well. I will try and limit the amount of different services to limit any potential issues, but I trust it working for the next few months (and after). 
+
+### What is your plan for next week?
+
+My plan is to learn about the topic that the exam is and do some preparation for that. That means I will look at the stimulus and create some notes. I should also make a draft to test my capabilities and try and extend them. I may try to do it in the 70 minutes like the exam is, or longer if I want to test the quality without worrying about time (but I will try to do it in 70 mins because that is closer to the actual one). After that I may actually implement the listing page but that would be after I do study for this and other subjects (5 tests in total).
