@@ -56,6 +56,11 @@ export const tags: TagConfig[] = [
         name: 'Research Report',
         description: 'The blogs made from research report assignments',
         slug: 'research-report',
+    },
+    {
+        name: 'In-class',
+        description: 'The blogs made from in-class tests',
+        slug: 'in-class',
     }
 ]
 

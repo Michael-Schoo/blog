@@ -101,6 +101,7 @@ description: ${response.description}
 date: ${response.date.toISOString().split('T')[0]}
 tags:
 ${response.tags.map((tag) => `  - ${tag}`).join('\n')}
+categories:
 ${response.categories.map((category) => `  - ${category}`).join('\n')}
 ---
 `;
