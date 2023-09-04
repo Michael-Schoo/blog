@@ -1,0 +1,96 @@
+---
+title: More accurate Hunger Games
+description: I have spent some time deciding and implementing a new version!
+date: 2023-09-04
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+This past week, I have done more considering of my project and some implementations. I have considered what the **********Hunger Games********** movie actually does and tried to plan it to be more accurate. As I shared some weeks ago, this means that I will be making it less of an RPG and more an actual game where better fighting can occur for more people. Lots of these things are still theoretical, but I hope to make it work.
+
+### What was completed
+
+So, as you read above, you should know that I have restarted effectively. The main thing that I am changing is making it take a while to actually learn. This is because I as I didn’t really implement if as a turn-based game last time, I didn’t feel like making it more turn based (every player goes after each other). As a result, I am now it is going to try and have 30 sec slots and random fighting. I don’t fully know how to implement this but might have to implement location cords for people and make them move and then do actions (like hiding or climbing tree). 
+
+By doing these changes could be making a complex game. This is for data science, so I shouldn’t spend too much time on making it a game as something that learns. I am also going to more focus on displaying data now because it is data science. I am thinking of making it a website that shows graphs and using github actions to run the model (and then you can check latest check on the gh pages).
+
+Another thing that I am going to implement is giving districts special bonuses need to be done somewhat fairly. However, as showing data is a main part, I don’t need to worry about it being a good ML. I still want it to be cool and possibly user playable, but I need to be realistic here.
+
+So, now to where what I have done to prove that I know how to do this adventure. Firstly, I did decide to use JavaScript as it gives me better type systems for dictionaries and also because it will simplify me making a website. You may know of my web dev project, and I am planning on using a basic react app with a react graph library (I know of many that look good). This code below basically just goes over the 12 districts (as an enum) and creates 50k people.
+
+```tsx
+const districtPeople = {} as Record<District, Person[]>;
+
+// make 50k people for each district
+for (const district of Object.values(District) as District[]) {
+    districtPeople[district] = [];
+
+    // make an array of 50k people
+    for (const num of range(50_000)) {
+        const gender = (num % 2) ? "male" : "female";
+        const name = faker.person.fullName({ sex: gender })
+
+        const person = new Person({
+            district,
+            name,
+            gender,
+            // TODO: make this random
+            age: 32
+        })
+
+        districtPeople[district].push(person)
+
+    }
+
+}
+```
+
+As it seemed like I could make use of parallel computing, I made it async. However, it didn’t seem to give me any bonus as they both took ~10 seconds. I think it was not working because it was blocked by the main thread as it made the users so fast. As the async version was actually a bit slower, I decided to just keep the above approach as it is cleaner code with same benefits.
+
+```tsx
+const districts = Object.values(District) as District[];
+
+// attempted making it async to improve speed
+await Promise.all(
+    districts.map(async (district) => {
+        districtPeople[district] = [];
+        // make an array of 50k people
+        for (const num of range(50_000)) {
+            const gender = (num % 2) ? "male" : "female";
+            const name = faker.person.fullName({ sex: gender })
+
+            const person = new Person({
+                district,
+                name,
+                gender,
+                // TODO: make this random
+                age: 32
+            })
+
+            districtPeople[district].push(person)
+
+        }
+    })
+)
+```
+
+My next thing to do is probably make the age actually random (ie not make everyone 32). This will allow me to do make making “families” (something that is exiting me). My plan for families is when people get old enough (>18), then they have a chance of marriage which yields chance of children (nutritional constraints will apply). I want to create as much as possible to be able to test, which means doing more character side instead of actual game mechanics.
+
+## Reflection
+
+### You are in week 8, and now restarting!?
+
+Well, it seems like a bad idea, but I have a few reasons. Firstly, I have learned lots of things from this term as well as reconsolidating what I should implement (and then decided that it needs major refactor). So, basically, I didn’t like how the other one was going and wanted to fix. Another reason is that I have a while left because I have until the end of next term (in around 10 school weeks). If this was closer to the due date, I would just deal with it. But I need to make it different enough from the previous task I submitted, so there has to be substantial change anyway.
+
+### If you stayed in Python, copying code will be easier?
+
+Staying with python could have made it easier to copy the same code. However, they are very similar and the difference of languages (especially when considering the already change of concept), it not that drastic. You ask why I changed if that was the case, but I would say that I just prefer JS a little more and it doesn’t fully matter the language. Also, it is a good distinguisher for them both (can’t get that confused what is which).
+
+### How do you feel about other subjects?
+
+I feel pretty good for my other subjects for this week. As I mentioned last week, I have the AST tomorrow (Tuesday and Wednesday), but as there is not much to study for it, I feel good. I have one other class has assignment next week (because I didn’t have an exam for it). As my other subjects is just theory again, I have good amount of time is for this project 🙂. I plan to spend time for both IT projects and tell you all about it in 7 days…

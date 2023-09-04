@@ -1,0 +1,193 @@
+---
+title: Email Sending and Better Auth
+description: Using email to verify and in the future send updates!
+date: 2023-09-04
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+So, this week was more exciting than the last 2 ones… This is because I spend my time improving my project. The main activity that I did was implement sending emails. I have wanted to do this for a while, and I finally decided to work it out. I haven’t done it with my last project, let alone in JavaScript. However, I found that there was easy way to style the email and send it. With this new feature, I have also implemented better practices with authentication and making sure the email is valid before the user can actually use the site.
+
+### What was completed
+
+The first thing that I did was working out how to send an email. I first tried [nodemailer](https://www.npmjs.com/package/nodemailer), but it didn’t seem to work well for sending email because of [spf](https://support.google.com/a/answer/33786?hl=en), this led me to have to use an external email sending provider that had IPs attached to DNS record. I tried using Gmail to send it, but that didn’t work as well, so I looked for other options. I remembered about the [MailChannels free integration with Cloudflare Workers](https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels/), and I tried to use it. Unfortunately, this seemed to only work with a custom domain with SPT configured to them. This lead me to just use my personal domain for the time being.
+
+Because I am using Vercel to host my website, I can’t just use the deal directly. This means that the best method for me is to make a simple script that “proxies” the request and sends it to the MailChannels server. To make sure this doesn’t get abused (because it is allowed to send email on my behalf), I added a query parameter that has a random string that gets checked. For testing, I also responded with what MailChannels responded with, and I have kept it because it doesn’t hurt. 
+
+```jsx
+// Cloudflare worker file
+export default {
+  /**
+   * @param {Request} request 
+   * @param {{auth: string}} env 
+   * @param {ExecutionContext} ctx 
+   * @returns {Promise<Response>}
+   */
+  async fetch(request, env, ctx) {
+    if (request.method !== 'POST') {
+      return new Response("POST required", {status: 400})
+    }
+		
+		// don't allow anyone to use this worker
+    if (new URL(request.url).searchParams.get("auth") !== env['auth']) {
+      return new Response("Unauthorised", { status: 401 })
+    }
+		
+		// just proxying the request to mailchannels (as you need a cloudflare worker IP for free)
+    const send_request = await fetch('https://api.mailchannels.net/tx/v1/send', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...request.headers
+      },
+      body: await request.text()
+    });
+		
+		// returning the response, so that i can see how it went
+    return new Response(JSON.stringify(await send_request.json()), {status: send_request.status});
+
+  },
+}
+```
+
+Now that I can send emails, I need to make them. To do this, I found a verification email that I have gotten and that looked good. But first, I need to decide on how I am going to create the email, I could do normal templating with HTML or use a library. I chose to keep the react style and also use tailwind by using [React-Email Tailwind](https://react.email/docs/components/tailwind). I did some testing and then made it similar to the one I chose (by using inspect element to copy styles).
+
+```tsx
+// simplified to make it take up less space
+
+import { Tailwind } from '@react-email/tailwind';
+import { Head } from "@react-email/head";
+import { Html } from "@react-email/html";
+
+export const MagicLogin = (magicLink: string, username: string, intention: "register" | "login") => {
+    return (
+        <Tailwind
+            config={{
+                theme: {
+										// tailwind config like normal
+                    extend: {
+                        colors: {
+                            dark: "#333333",
+                            light: "#FFFFFF",
+                            "dark-grey": "#51545E",
+                            "light-grey": "#F4F4F4",
+                            "just-black": "#111111"
+                        },
+
+                    },
+                },
+                darkMode: "media"
+            }}
+        >
+            <Head>
+								{/** dark mode support */}
+                <meta name="color-scheme" content="light dark" />
+                <meta name="supported-color-schemes" content="light dark" />
+
+            </Head>
+            <Html lang='en'>
+                <div className='bg-light-grey p-[40px] md:p-[80px] dark:bg-dark rounded-lg text-dark-grey dark:text-white'>
+									{/** simplified to show how it works */}
+                  <h1>
+                      {
+                          intention === "register" ? "Welcome to Online Store,"
+                              : intention === "login" ? `Hey @${username} 👋,`
+                                  : "???"
+                      }
+                  </h1>
+
+                      Click the link below to {intention === "register" ? 'activate' : intention === "login" ? 'sign in' : '???'} your account.
+
+                  <a href={magicLink} >
+                      {
+                          intention === "register" ? "Activate Account"
+                              : intention === "login" ? "Login"
+                                  : "???"
+                      }
+                  </a>
+
+                  <p>This link expires in 24 hours and can only be used once.</p>
+
+                  {intention === "login" && (<p>If you did not try to log into your account, you can safely ignore it.</p>)}
+                </div>
+
+            </Html>
+
+        </Tailwind>
+    );
+};
+```
+
+The next part was to actually build the HTML and send the email to the user. For this stage, I used the render function which built the HTML to send with tailwind as inline styles. This is the stage that I spammed myself as I got the sending, I just needed to change the UI to make sure Gmail had it look good. I deleted most of them as it just clutter up my inbox and archived.
+
+```tsx
+// sending email to mailchannels through cloudflare worker proxy
+export default async function sendReactEmail(jsx: ReactElement, subject: string, recipient: { email: string, name: string }, thread = true) {
+    const html = render(jsx);
+    const text = render(jsx, { plainText: true }); 
+    
+
+    await fetch(process.env.EMAIL_API_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            headers: {
+								// make gmail not think that it is quoting its-self
+                "X-Entity-Ref-ID": !thread ? new Date().getTime() + "" : undefined,
+            },
+            personalizations: [
+                { to: [recipient] }
+            ],
+            from: {
+                email: process.env.EMAIL_SENDER,
+                name: "Store App"
+            },
+            subject,
+            content: [
+                {
+                    type: "text/plain",
+                    value: text
+                },
+                {
+                    type: "text/html",
+                    value: html
+                }
+            ]
+        })
+    });
+}
+```
+
+My first implementation was to send the email. I created an API route which took an email. This email was used to check if either the user already exists to personalise the email (add username or say register) and create the account if necessary. As I didn’t want to deal with adding the login link to the DB, I just created an auth token which just the same as before auth (username and password) and it just goes to another API route which adds the token to cookies.
+
+```tsx
+// if user exists, send them a login link (register is very similar)
+const token = await createUserToken(user)
+const expiresFormatted = new Date(Date.now() + expires).toISOString()
+
+const emailToSend = MagicLogin(canonicalUrl(`/api/auth?jwt=${token}&expires=${expiresFormatted}`), user.username, 'login')
+sendReactEmail(emailToSend, "Sign-in link for Online Store", { email, name: user.username }, false)
+```
+
+My main motivation of removing passwords was that it makes signup and login simpler (can be the same page) and that it moves more of the security to their email provider (as they would have the security already with reset password). At the time of writing this post, I have converted to use [NextAuth.js](https://next-auth.js.org/) because it allows me to use Google OAuth easier and it has better practices with storing data (including session). I haven’t fully tested it, so that's why it isn’t on GitHub if you read this very recently. I do feal like I lost lots of control because I am using a library to create the tokens and create email links (it actually saves it to DB), but I know that it is best for me to do.
+
+## Reflection
+
+### Why do you like reinventing the wheel?
+
+Well, I am not totally reinventing the wheel because I am using Next.JS and not react/raw html like could be. The main motivation was because it allows me to not have to understand the new library which can waist some time when you know how to implement id. I didn’t use the library for flask assignment, this was because of the above reasons. However, I can see benefits of next auth, because of its better management and OAuth. I also know that they generally have better implementations, but sometimes, it is fun to do the method myself and then see how a better approach would do it.
+
+### How can this be abused?
+
+There is a large amount of abuse currently as I have no rate limits. This allows anyone to submit unlimited requests and cause mass email spam. With the spam, my domain could possibly get blacklisted by Google which isn’t that best outcome. This is not new knowledge as my previous login method wasn’t safe either, but this time more is at stake. I plan to fix this soonish, but it isn’t important as I want to finish features before adding these limits (if it gets spammed, then it will be fixed quicker, so plz don’t).
+
+### What's next?
+
+I have a few thoughts on what I want to do next. The first thing that has been bugging me is the way for creating listings. I don’t like the current way because it feels to mobile and is’t that practical for actually doing a listing with lots of data. My solution will be to have the initial creation similar, but then create the listing which can be edited (with a better display). The next thing I will do is to make the displayment of listings better. Currently it just shows all the data, but I want to show it in a more useful way and implement comments.
