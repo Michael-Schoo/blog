@@ -1,0 +1,40 @@
+---
+title: Planning visualization website
+description: Deciding on what to use to make graphs to show data from the game.
+date: 2023-09-11
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+I have done some cool things this past week. Some is Googling to see what to use and other is doing the basics and working out how to structure app. Now that I am adding a visualization website, I need to be able to have both code for the game but also the website in the same repo without having it confusing. I need to have it in a way that makes updating not a chore from trying to work out where everything is. Overall, I want to make a nice interactive graph and organize the code well.
+
+### What was completed
+
+The main thing I want to show you is the cool graphing library. I found this out when I was searching for cool web-based graphs, and I liked how to use it. The It is called [Tremor](http://tremor.so/) uses react, so I have no problem using it because I am using it for my web dev project, but I might not recommend it over matplotlib (the old assignment one we had to use) because it may be extra confusion. It required a bigger app bundle then just a few lines of code to launch the matplotlib, but I would say it looks better [[see demo here](https://demo.tremor.so/)].
+
+As I said earlier, I will need a method to store many different projects here. As they are the same project but different, I will utilise monorepo and have them as separate apps. One will be graph website, and other will be the actual game.
+
+To utilise this, I am going to make it publish graph to github pages after the game has simulated in the github action. This is by downloading json dump of the results to show the graph in a useful manner. I don’t know whether to make one big json, individualized json, or csv (probably big to begin with). 
+
+I am considering to do the simulations to run every second (in game simulated time) and make the payer choose path and then run action. This is because I can’t see better way for doing 24 players in quick (not real time like most online AIs can be).
+
+This seems to be a simple task, and I hope to 
+
+## Reflection
+
+### But this is data science, not web dev?
+
+I know that this is data science but it isn’t just about creating data but also displaying it. This project is now kinda me doing other IT things (game + website) and making cool things. The website isn’t going to be that advanced because it will just be a single page that shows some data. I also like web dev, and there isn’t anything saying I can’t, so I might as well learn how to display data in a cool way.
+
+### Are you able to complete this big project?
+
+It does sound complicated, but I think I know how to do it. I just need to do things in steps so that I can see progress but not get overwhelmed by the things needed to do. I will spend a bit of time making a process of transferring data between the game and website. This will involve working out what data should be kept and what should be displayed. This may also mean that I can use pie charts for some things (like population comparison for districts), not all data is in tables and basic line graphs.
+
+### Anything else the website could do?
+
+If I really want to, I could make the simulation be able to be run on device as JavaScript. However, it would take a while and might not be that interesting. I could also make the game open WebSocket and stream events and display them when its running (for dev mostly). This live viewing could be done for the browser-based method, but this will add so much complexity from using NodeJS things (like file system) and it won’t be that worth it to create right now.

@@ -1,0 +1,40 @@
+---
+title: Making better listing page
+description: The listings need to be appealing for people to use the website.
+date: 2023-09-11
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+**Week… another week…** Sometimes I hear that you want the weekly changelog. This week, I have done some things, they include researching other projects and fixing code… I have looked at the layouts for shopping/trading websites and see the common theme. I now need to work out how to actually implement it, but that should be just some flex/grid (and I have done it before). Overall, it hasn’t been that featureful, and I think I may have added bugs while fixing others…
+
+### What was completed
+
+Last week, I said that I had done things with nextauth. This week, I can say that I have done enough, and just pushed the changes even though there are bugs… Firstly, nextauth allowed for redirecting to “onboarding” page once user verified (I could do this in old implementation). This means that I set it up to have a page which I haven’t created it yet. This goes to the second bug/issue, you can’t change username/set it anymore. Before, you could set username on signup screen, but now you just get an email, so it is random… If I had onboarding, this could be solved easily. I also implemented Google oauth which is cool and better to login with. It's annoying that i need 2 apps because of database because it does tokens weird, but better to do so anyway.
+
+I also made the ids a uid instead of increment because it simplified things. But it did however make urls slightly longer. However, it makes it better for online DB as it doesn’t need to keep the state of incrementation. I think it doesn’t change things too much, and it is a good change.
+
+---
+
+Now for the more interesting stuff… As I mentioned earlier, I have observed ebay’s website to see what I need. I have decided to copy the ebay layout and have image on left and description (with price/buy button) on right [[example listing](https://www.ebay.com.au/itm/404485181643)]. I am not going to have item specifics yet because it means that I need to deal with inputting that, and I don’t really want to make that a section. Underneath that I may add reviews but only if I decide to allow for multiple purchases (because otherwise what's being reviewed). I may also have a short and long description with markdown so that they can create a table if they want.
+
+If I look at my [project](https://michael-schoo.github.io/Danko/) a while ago, I used some weird [JS mechanics](https://github.com/Michael-Schoo/Danko/blob/main/scripts/products.js) to allow for custom pages in static page. This isn’t going to happen for my new project, because I will maybe it all dynamic. Because I used weird sizing, I had issues of spacing for smaller/larger screens, so I plan to use better implementation (but maybe keep the method of image, short description and long description)
+
+## Reflection
+
+### But why copy?
+
+I did do my old websites without much reference image. The first one I made, I over-used CSS and it was so chaotic (only worked ok on my screen). The second one was so boring because I restricted myself to bootstrap and basic customisation. But now, I have learned from it, and now will try to find a middle ground of sensibility and knowledge/functionality. I will still use the component library, but custom styles may be needed still. Also, clearly Ebay has success with it, so why not take inspiration…
+
+### How important is a good listing/product page?
+
+A good listing and product page is important, but not that much for this project. As I am trying to have something that is functional and works, I don’t care as much about UI/UX as a business trying to insensitive sales because of commission. I might focus on the creator of listing and do something like data science and add graphs for creators and make analytics that can show views and engagement (but maybe not that because it's hard to measure in a privacy way).
+
+### So, how much have you implemented?
+
+I have done some basic implementation, but it's the basics. I will do more before next time (hopefully it is finished), but it won’t be the focus anymore. I will spend that time making the better creating page or onboarding because usernames should exist. I also think I should make settings, but that is not very important right now. I want to add features where the most necessary are done first, then cool things after (but some cool things in middle because they are more fun).
