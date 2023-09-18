@@ -1,0 +1,140 @@
+---
+title: Using Bun for improved speed!
+description: There has been many new features and changing from nodejs to bun greatly improved speed.
+date: 2023-09-18
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+Hmmm, you have come to read… Do you want to hear about my week? If so, strap in because I have improved speed and efficiency by changing very little things. I also have added new features such as a more actual game (still not very close to being playable/ a game). In its current state, it isn’t worth that much as its just the basics of initial necessary classes and scaffold of how the project will work. I need to actually implement the combat system for it to be more than a random generation thing (with some deaths).
+
+### What was completed
+
+The star of the show is my new game class. This allows for sharing state and simplification. It allows for my “main” file to be really basic and just initialise the game and start it. I may add more things that it can do (ie add the loop for running days there), but I think it works well (as a file doesn’t need to be long to be useful). My main file also exports the data, but that may be moved over to the class (as generating the export is already there). 
+
+```tsx
+const game = new Game();
+game.start();
+
+// export data
+const __dirnameAlt = __dirname || path.dirname(path.resolve());
+
+const data = game.export();
+// save it as data.json (in public folder of website)
+fs.writeFileSync(path.join(__dirnameAlt, "../../visualization/public", "data.json"), JSON.stringify(data));
+
+console.timeEnd("save people")
+```
+
+The more interesting file of game does many things. It initialises the districts and people as well and holding functions that can be used (internally of the game file and externally of other files using it). You can see that the game is passed into the district by the `this` keyword. The start function is very basic and just runs the new day code until it is 100 years (currently what is set). I could do a for loop with range, but I prefer this approach because I increment it in the new year function (as it makes more sense - in the name).
+
+```tsx
+// ... imports ...
+
+export default class Game {
+    readonly districts: District[]
+    readonly families: Family[] = []
+    readonly learboards: Learboard[] = []
+    year = 1;
+
+    constructor() {
+        this.districts = districts.map(d => new District({ type: d, game: this }));
+
+        for (const district of this.districts) {
+            this.generateInitialPeople(district);
+        }
+    }
+
+    start() {
+        while (this.year < YEARS_TO_SIMULATE) {
+            this.newYear()
+        }
+    }
+
+		// ... more functions here...
+}
+```
+
+The code to generate initial people is very similar to what was used in the previous approach, but it made more sense (in a readability way) to have it not in the constructor and in its own function. I also updated the person class to take in the game. Currently it isn’t used for anything, but it can be useful to see the current year and other stats. There is basically no side effects from adding class pointers except that it can be a bit overkill it not needed (like unrelated thing). For classes that take in input like user, I don’t ask for the game class as I can just take it from the other instance. 
+
+```tsx
+// part of game class - private so that it is hard to accidentally run it
+private generateInitialPeople(district: District) {
+    for (const num of range(INITIAL_PEOPLE_PER_DISTRICT)) {
+        const sex = (num % 2) ? "male" : "female";
+        const name = faker.person.fullName({ sex })
+        const age = chooseAge(num);
+
+        const person = new Person({ district, name, sex, age, game: this })
+        district.addPerson(person)
+
+    }
+
+}
+```
+
+The reason that I haven’t made a global people list is because it is only really used in the scope of districts. A few times it is used as all, but it is used at the same time district things occur, so it isn’t that hard to do a for loop. A solution I made if i really needed all people was to make a getter that returns like a constant but runs code.
+
+```tsx
+// part of game class    
+get people() {
+  return this.districts.flatMap(d => d.people);
+}
+```
+
+The new year function is incomplete as I don’t have any battling logic, but it adds a year to their age (if alive), creates new families, children inside them and kills some people. The creation of family is random, but I will change make customization towards random based on nutrition level and happiness. The children is a similar thing. And killing people currently has the highest chance, but I will make it mostly linked with old age and young age with poor sanitation (if implemented). The senses at the end is to help with the graph as it inclused how many people exist for a certan year in the district (+ births and deaths).
+
+```tsx
+// part of game class    
+newYear() {
+    console.info(`Year ${this.year}`)
+
+    const censusStats: Record<string, CensusProp> = {};
+
+    //? Pre hunger games (district stuff for the whole "year")
+    for (const district of this.districts) {
+
+        // add age
+        for (const person of district.people) {
+            if (!person.alive) continue
+            person.age += 1;
+        }
+
+        // make new families + children + kill people
+        this.makeNewFamilies(district);
+        this.makeNewChildren();
+        this.killPeople();
+    }
+
+    //? Start hunger games
+		// TODO: actually do things here	
+
+    //? Save data
+    for (const district of this.districts) {
+        const deaths = district.people.filter(person => person.diedAt === this.year).length;
+        const births = district.people.filter(person => person.age === 0).length;
+        district.addCensus({ year: this.year, deaths, births });
+    }
+    this.year = this.year += 1;
+}
+
+```
+
+## Reflection
+
+### This is a big class, does everything have to be on it?
+
+Yes, the game class is currently large, it is only 300 lines, but it could grow even more easily. To try and maintain understanding I am only going to put game scoped functions here. This means things like battling might be in its own class as it doesn’t need to be used on game. I could use functions instead, but it isn’t as good with understanding the code still has to be somewhere (might as well be done in the game file.
+
+### How is the graph website going?
+
+The graph website is going well. I made it now show all the people in the game and their outcome at the end. It did however get laggy as it had 6k people (~500 per district), and when I added filtering, it got a bit annoying to switch (so I just removed filtering). I am going to try and make graph at the same time as creating the data. This is so that I don’t forget about data but also implement when I can change the APIs with less issues.
+
+### Will you use Node.JS anymore?
+
+Yes, I will still use NodeJS and Python still. The website is currently forced to use Node as it doesn’t support bun yet. Node is still decent, and is used in more things than expected (ie VS Code, Discord app, and GitHub desktop app). So, I don’t think it will go anywhere and I will still use it (+thanks to the team as they did volunteer work while bun is VC funded). The main benefit of Bun for me was ability to use TS without the build step (the speed was just an added bonus).

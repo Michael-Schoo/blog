@@ -1,0 +1,195 @@
+---
+title: Creating listings is easier and better!
+description: We want people to create a listing and not give up, so now there is better UX!
+date: 2023-09-18
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+Hello and welcome to the weekly update bulletin of web dev. In today's episode, I have invested into making the experience of creating listings easier and better. This also extends to mobile (not only desktop use), but less important currently. I first thing I did was look at what actually needed to be filled out, and then separate it out into usable sections. I also wanted to make it more inviting to create a listing by only having one input for name and then showing the other options.
+
+### What was completed
+
+As i just said, I thought about making the create listing a better feel. To do this I went away from the small form input that was in the middle of the screen. This didn’t feel very professional and didn’t have the nicest of UX for images. So, I am now making a dashboard style and having options on the left side (basic config, images, and other things that need their own space). Another reason was that I am going to add stats (page views) to the same edit dashboard. When the listing is published, I may make some of the things un-editable, but that is a future problem (and how i want to implement - could be just when someone has purchased product…).
+
+The first page is my page with just textbox. This was pretty basic and didn’t need much. I also diched my custom validation method and just used a library called [zod](https://zod.dev/) and a [wrapper](https://github.com/react-hook-form/resolvers) that simplifies using it. Zod made the schema way better to understand and easier to change. It also still enabled error messages with the added bonus of not needing to change many places when the size changes.
+
+```tsx
+// Just the schema that all the files can use
+export const listingCreateSchema = z.object({
+    name: z.string().min(5).max(50),
+})
+
+export const listingUpdateSchema = z.object({
+    name: z.string().min(5).max(50),
+    description: z.string().min(10).max(3_500),
+    price: z.number().positive().max(10_000),
+    currency: z.enum(currencies.map(c => c.name) as [string, ...string[]]),
+    tags: z.array(z.string().min(1).max(20)),
+})
+```
+
+As I just said, the file to create listings is simple. It shows a form with the name option and the user presses the button when they decide to create. This sends a POST request to the server and creates the listing in the DB. That is the main change because now I have an ID that can be used to update instead of relying on the page’s state.  If the request is successful (should always work as the schema is validated on client first), the user gets redirected to the edit page (ie where the dashord design is).
+
+```tsx
+'use client';
+
+// ... import statments ...
+
+export default function CreateListing() {
+    const router = useRouter()
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+    } = useForm<FormData>({
+        resolver: zodResolver(listingCreateSchema),
+    })
+		
+		// disables the button and shows spinner
+    const [isCreating, setIsCreating] = useState<boolean>(false)
+
+    async function onSubmit(data: FormData) {
+        setIsCreating(true)
+
+        const response = await fetch(`/api/listing`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: data.name,
+            }),
+        })
+
+        setIsCreating(false)
+
+        if (!response.ok) {
+            return toast({
+                title: "Something went wrong.",
+                description: "Your sign in request failed. Please try again.",
+                variant: "destructive",
+            })
+        }
+
+        toast({
+            title: "Created Listing!",
+            description: "Please fill out the rest of the information.",
+        })
+
+        const listing = await response.json()
+
+        router.push(`/listing/${listing.id}/edit`)
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Create Listing</CardTitle>
+                    <CardDescription>
+                        Please enter the name of your listing.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-1">
+                        <Label className="sr-only" htmlFor="name">
+                            Name
+                        </Label>
+                        <Input
+                            id="name"
+                            className="w-[400px]"
+                            size={32}
+                            {...register("name")}
+                        />
+                        {errors?.name && (
+                            <p className="px-1 text-xs text-red-600">{errors.name.message}</p>
+                        )}
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <button
+                        type="submit"
+                        className={buttonVariants()}
+                        disabled={isCreating}
+                    >
+                        {isCreating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        <span>Create</span>
+                    </button>
+                </CardFooter>
+            </Card>
+        </form>
+
+    )
+
+}
+```
+
+The POST request handler is very simple. It just checks that the user exists and checks the input to be valid. It then creates the post and responds with the ID of the listing that was just created. There isn’t much to do here, and it is was simplified from what was done before (adding images and other attributes in same step)
+
+```tsx
+// ... import statments ...
+
+export async function POST(request: Request) {
+    const res = await request.json()
+
+    // make sure a user exists
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+		
+		// parse the request and show nice errors
+    const inputParsed = listingCreateSchema.safeParse(res)
+    if (inputParsed.success === false) {
+        return NextResponse.json(
+            inputParsed.error.flatten().fieldErrors,
+            { status: 400 },
+        )
+    }
+
+    const input = inputParsed.data
+
+    // now create the listing
+    const listing = await prisma.listing.create({
+        data: {
+            name: input.name,
+            locked: false,
+            published: false,
+            publishedAt: null,
+            userId: user.id,
+        },
+        select: {
+            id: true,
+        },
+    })
+
+		// give the id back so that the client can redirect to edit page
+    return NextResponse.json(
+        {
+            id: listing.id,
+        },
+        { status: 200 },
+    )
+}
+```
+
+## Reflection
+
+### How will this be improved?
+
+To improve this page, I should add better styling to increase usage. This may be making the textbox bigger and more inviting or some animations, but I am currently doing partibility over design (ie not spending too much time). I am considering adding search into the text box so that they can get an idea of other things that exist or just remember what they made. So, I am make it for either your results or all listings and make a button for “sell also” which effectively duplicates it.
+
+### Is there any issues currently?
+
+There are some minor bugs, but they only should cause issues in the future. As I am using nextauth, the cookies (JWT) include the user’s ID. This is normally fine (less API reqs), but when dealing with deleted accounts, it gets a bit weird. I don’t think this is very important, and I can solve with just adding a where clause to the insert statement (this also would make sure the user actually has ownership for editing). This does however require the ability to delete account… The place I found out about this was when I reset only the user table and some pages broke because it was expecting a user to exist (ie the listing page). SO, before I add the ability to delete, I need to fix it being able to be used.
+
+### How is code duplication?
+
+Currently, I am copying a decent amount of code to get it working and see a possible implementation. Then I can separate out things when necessary. The main things are checking if user is signed in and checking if they can add to a listing based on who the creator is. I may allow “admins” to delete listing, but not much else easily (as that can be way abused and annoying). I believe that reducing code duplication can he helpful because it shrinks bundle size and allows for easier fixing. There is too much where it gets so confusing to understand…
