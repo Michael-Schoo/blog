@@ -1,0 +1,297 @@
+---
+title: Making a Map for the Game
+date: 2023-10-09
+description: Map is the best way of making hunger games, so I have to make it.
+categories: 
+ - data-science
+tags:
+ - From Assignments
+ - Programming
+---
+
+## Overview
+
+Hmm, you read this… Does this mean I can say anything… If so, I would like to mention our sponsor being the Hunger Games project. This is a script which tries to simulate how it should go in a basic sense. It has the 12 districts each with their own abilities and then every year 2 people from each district go and fight each other. My new feature since last time is making a map for them to play. This is kinda inspired by [civilisation 6](https://civilization.com/en-AU/) where there are tiles and turn based. I am going to have each person/player take turns deciding what to do. After enough time, they should kill each other. I will have to implement some path finding otherwise I would need a tiny map to get activity.
+
+### What was completed
+
+For making the actual map, I wanted it to just begin with a set map before I try and make it different each year. I wanted to be able to use emojis to dictate what things are on each time so that I could test things better. I chose to make an object mapping for emojis to not hard code it and allow for a legend, while not having one. This was created in the constants file as that is where I have put other customizable variables. Because I was importing the enum for the time type (haven’t chosen good name yet), I had issues with importing it back into the same file (kinda recursion). So I had to make it have intermediary (currently the place Map class requires the map string).
+
+```tsx
+// constants.ts
+export const mapConfig: MapConfig = {
+    [MapEnum.Plain]: '🟩',
+    [MapEnum.Grass]: '🌱',
+    [MapEnum.Tree]: '🪴',
+    [MapEnum.Forrest]: '🌳',
+    [MapEnum.Mountain]: '⛰️',
+    [MapEnum.Lootbox]: '🎁',
+    [MapEnum.SpawnPoint]: '🕳️',
+    [MapEnum.Lake]: '🌊'
+}
+
+export const map = `
+⛰️ ⛰️ ⛰️ 🪴 🪴 🪴
+🌊 🪴 🪴 🪴
+🌊 🌊
+⛰️ 🌊 🌊
+🕳️ 🕳️ 🕳️ 🕳️ 🕳️ 🕳️
+🕳️ 🕳️ 🕳️ 🕳️ 🕳️ 🕳️
+🕳️ 🕳️ 🕳️ 🕳️ 🕳️ 🕳️
+🕳️ 🕳️ 🕳️ 🕳️ 🕳️ 🕳️
+🟩 
+🟩 🟩
+🟩 
+🎁 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩 🟩
+`
+```
+
+I originally had all my map code in one file, but I created a map utils file for some of the functions (to try and reduce size). This code works by getting each line and slitting by space and getting each emoji. Once it has the emoji, it reverses the `mapConfig` enum by making the values the keys to get the type of tile. It then checks if there is enough spawn points (as currently assigned randomly). I also created a function that effectively does the opposite because it takes the same return type of parser and creates string (also using the chosen emojis). This is going to be used for testing but I’m not thinking it should be used much (thus not going tot be improved much).
+
+```tsx
+// map-utils.ts
+import { districts } from "./districts.js"
+import { MapConfig, MapCord, MapEnum, MapTile, mapSize } from "./map.js"
+import { range } from "./utils.js"
+
+export function convertStrMapToActual(mapStr: string, mapConfig: MapConfig) {
+    const map = new Map<MapCord, MapTile>()
+
+    let playerSpawnPoints = 0
+
+    let x = 0
+    for (const line of mapStr.split('\n')) {
+        if (line == '') {
+            continue
+        }
+
+        x += 1
+        let y = 0
+
+        for (const char of line.split(/\s+/g)) {
+            y += 1
+
+            const typeStr = Object.entries(mapConfig)
+                .find(e => e[1] === char)
+
+            if (!typeStr) {
+                if (char !== '') console.warn('Unknown Char: ' + char)
+                continue
+            }
+
+            const type = parseInt(typeStr[0])
+            map.set(`${x}-${y}`, { type })
+
+            if (type === MapEnum.SpawnPoint) {
+                playerSpawnPoints += 1;
+            }
+
+        }
+    }
+
+		// can't have too many/ too little
+    if (playerSpawnPoints !== districts.length * 2) {
+        throw new Error(`Not enough spawn points, received ${playerSpawnPoints} but expected ${districts.length * 2}`)
+    }
+
+    return map
+}
+
+export function convertMapToStr(map: Map<MapCord, MapTile>, mapConfig: MapConfig) {
+    const [maxX, maxY] = mapSize(map)
+    let msg = ''
+
+    for (const x of range({ start: 1, end: maxX + 1 })) {
+        for (const y of range({ start: 1, end: maxY + 1 })) {
+            const entry = map.get(`${x}-${y}`)
+            const emoji = entry?.type !== undefined ? mapConfig[entry.type] : "⬛"
+            msg += ` ${emoji} `
+        }
+        msg += '\n\n'
+    }
+
+    return msg
+
+}
+```
+
+Now the more interesting file is the one with map class. This has the enum of types and the interface type that constants uses. The bulk of the code currently is just for generating the map and just going through 10 turns as there isn’t much occurring right now. The first thing that happens is the map gets parsed into the right method (with cords for access), and the players spawn location is random out of the many options. I may choose to hard code this more (to have the same district closer), but I think I will have them act independent but be peaceful (and can win match if only they are alive). I used similar code for the main game class by having a `.start` function which runs a while true loop untill the condition is met (ie if game is meant to still continue). 
+
+```tsx
+// map.ts
+import Person from "./people.js"
+import Player from "./player.js"
+import Game from "./game.js"
+import { convertStrMapToActual } from "./map-utils.js"
+
+export enum MapEnum {
+    Plain,
+    Grass,
+    Tree,
+    Forrest,
+    Mountain,
+    Lootbox,
+    SpawnPoint, // effectively plain tho
+    Lake
+}
+
+export interface MapConfig {
+    [MapEnum.Plain]: string,
+    [MapEnum.Grass]: string,
+    [MapEnum.Tree]: string,
+    [MapEnum.Forrest]: string,
+    [MapEnum.Mountain]: string,
+    [MapEnum.Lootbox]: string,
+    [MapEnum.SpawnPoint]: string,
+    [MapEnum.Lake]: string
+}
+
+export type MapCord = `${number}-${number}`
+export type MapTile = {
+    type: MapEnum,
+    player?: Player
+}
+
+export function mapSize(map: Map<MapCord, MapTile>): [number, number] {
+    const mapEntries = [...map.entries()]
+
+    const maxX = Math.max(...mapEntries.map(e => parseInt(e[0].split('-')[0])))
+    const maxY = Math.max(...mapEntries.map(e => parseInt(e[0].split('-')[1])))
+    return [maxX, maxY]
+}
+
+enum MovementChoice {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+enum TurnAction {
+    Move,
+    Fight
+}
+
+export class GameMap {
+    readonly map: Map<MapCord, MapTile>
+    readonly players: Player[] = []
+    readonly mapSize: [number, number]
+    readonly game: Game
+    turn = 0
+    gameOver = false
+
+    constructor(mapStr: string, mapConfig: MapConfig, players: Person[], game: Game) {
+        this.game = game
+        this.map = convertStrMapToActual(mapStr, mapConfig)
+        this.mapSize = mapSize(this.map)
+
+        const mapEntries = [...this.map.entries()]
+        const spawnPoints = mapEntries
+            .filter(([location, content]) => content.type === MapEnum.SpawnPoint)
+            .sort(() => Math.random() - 0.5);
+
+        for (const person of players) {
+            if (!person) {
+                continue
+            }
+            const spawnPoint = spawnPoints.pop()
+            if (!spawnPoint) {
+                throw new Error("Should have spawn point")
+            }
+
+            const location = spawnPoint[0].split('-').map(n => parseInt(n)) as [number, number]
+            const player = new Player(person, this, location)
+            this.players.push(player)
+        }
+    }
+
+    start() {
+        while (!this.gameOver) {
+            this.newTurn()
+        }
+    }
+
+```
+
+My new turn code is slightly more weird. I first check for valid moves, and then choose a random outcome out of that, and then actions. This is only very temporary because I wanted something with movement over the map. I think i will create a function for finding valid moves and maybe add weights (ie if specialty is fighting, give more chance to it). If I add inventory spots, this will probably be added towards the chance. Overall, this is a simple thing as it just checks if you can go out of the border (doesn’t even check if someone is there yet - going to add on user class).
+
+```jsx
+    newTurn() {
+        for (const player of this.players) {
+            if (player.person.diedAt === null) {
+                continue
+            }
+
+            //? check valid moves
+            const [maxX, maxY] = this.mapSize
+            const [playerX, playerY] = player.location
+            const moves = []
+
+            // check up
+            if (playerX > 1 && playerX < maxX) {
+                moves.push(MovementChoice.Up)
+            }
+
+            // check down
+            if (playerX > 1 && playerX < maxX) {
+                moves.push(MovementChoice.Down)
+            }
+
+            // check left
+            if (playerY > 1 && playerY < maxY) {
+                moves.push(MovementChoice.Left)
+            }
+
+            // check right
+            if (playerY > 1 && playerY < maxY) {
+                moves.push(MovementChoice.Right)
+            }
+
+            //? now move
+            // choose move
+            const move = moves[Math.floor(Math.random() * moves.length)]
+            console.log(player.location)
+
+            // move
+            switch (move) {
+                case MovementChoice.Up:
+                    player.location[0] -= 1
+                    break;
+                case MovementChoice.Down:
+                    player.location[0] += 1
+                    break;
+                case MovementChoice.Left:
+                    player.location[1] -= 1
+                    break;
+                case MovementChoice.Right:
+                    player.location[1] += 1
+                    break;
+                default:
+                // move satisfies never
+                // throw new Error("not a move")
+            }
+
+        }
+
+        this.turn += 1;
+        if (this.turn === 10) {
+            this.gameOver = true
+        }
+
+    }
+}
+```
+
+## Reflection
+
+### How advanced is this going to be?
+
+Initially this is going to be just random movement, but then I will then try cost based system for path finding (but still some random). This may turn out to be weird, but I think just going to the loot boxes (where tools and weapons are) and then to random person to fight should be simple. I will attempt to have distinctive differences between them, but I first want some sort of game to be made. I also think I need to be careful with making it trying to do so much (as not even in game dev).
+
+### How much has been tested?
+
+I have not really done much testing. I have tested the map and parsing it, but not as much for actual player interactions/moving yet. The code looks like it should work, but I believe that I can fix it if that ever occurs (I understand it and know what is expected). The only issue is when I go off in tangents where I get too exited on the not important part. But as I have done may spot checks, I have high faith that the functions work as intended.
+
+### Is this map going to be shown on the website?
+
+I know how I would make it show on the visualization site as it just means I need to store every move into the data. But this could memory balloon the game if I simulate too much and output larger data JSON file (can split it up if needed though). I would need to do well because I don’t want a badly styled component. And then I fear that it could almost warrant just itself as the project because how much harder would it be just add an input for moving and consuming shared code.

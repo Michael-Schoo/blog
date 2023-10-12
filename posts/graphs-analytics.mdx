@@ -1,0 +1,282 @@
+---
+title: Graphs and Analytics
+date: 2023-10-09
+description: Making graphs to show the listing creator interesting data.
+categories: 
+ - web-dev
+tags:
+ - From Assignments
+ - Programming
+---
+
+## Overview
+
+Hello and welcome back to my blog. This episode I am going to talk about my holidays and what occurred then. I haven’t done that much in that time, but I did spend some time implementing the graph feature. I already knew a bit on how to use it (did it for data science project), so I just needed to so some config change and it worked. I just had to follow the tutorial and see the bits I need to add, and then try and work out how to make it show data. Once I decided on how much data I wanted to show, I needed to work out how to collect and actually show it.
+
+### What was completed
+
+The first thing I did was to make the upload image experience better. This is by actually having a way to edit alt text and delete safer. The delete was easier because all I need to do is show a delete button and send fetch request. The code for edit description is similar, but this should be good enough for you to get the concept. There is a button which launches a modal ui, in this viewport it shows the option to delete as well as name to be really sure. Once the delete button is pressed, the button shows loader icon and either closes modal or shows toast error and allows button to be pressed again. The code for actually deleting the image is also pretty basic, it just removes from DB and from uploadthing.
+
+```tsx
+// /app/listing/[id]/edit/images/modals.client.tsx
+export function DeleteModal({ image, listing, name }: { image: string, listing: string, name: string | null }) {
+    const [isDeleting, setDeleting] = useState<boolean>(false)
+    const router = useRouter()
+
+    async function onSubmit(form: FormEvent<HTMLFormElement>) {
+        form.preventDefault()
+        setDeleting(true)
+
+        const res = await fetch(`/api/listing/${listing}/image/${image}`, {
+            method: "DELETE",
+        })
+
+        if (!res.ok) {
+            setDeleting(false)
+            return toast({
+                title: "Something went wrong.",
+                description: "Your image could not be removed.",
+                variant: "destructive",
+            })
+        }
+
+        router.refresh()
+
+        toast({
+            title: "Removed image.",
+            description: "Your image has been removed.",
+        })
+
+        dialogClose()
+
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="destructive" size="icon-sm">
+                    <Trash2Icon className="w-4"/>
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={onSubmit}>
+                    <DialogHeader className="py-4">
+                        <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                        <DialogDescription>
+                            This action cannot be undone. This will permanently delete your image: <b className="font-bold">{name}</b>.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-y-2">
+                        <Button type="button" variant="secondary" disabled={isDeleting} onClick={dialogClose}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" variant='destructive' disabled={isDeleting}>
+                            {isDeleting && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            <span>Delete</span>
+                        </Button>
+
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
+```
+
+Now that I made deleting and editing the images better, I wanted to focus on other parts of the listing edit page. This section was the publish and analytics. The publish was very basic and just checking that all the inputs are filled out and recommends images to be added. The more interesting one is analytics, this is done by making a graph to show each day’s view count, and making the data via a push of data from each page visit. 
+
+This `addToAnalytics` function is called right after validation that the listing is valid. All it does is does a database upsert which makes sure there is a value. In this case, I want to set it to 0 or increment by 1. I chose to make it store based on the day because it would give good data while being pretty basic (and not being lots of reads).
+
+```tsx
+// app/listing/[id]/page.tsx
+function addToAnalytics(listingId: string, day: Date | string) {
+    return prisma.listingAnalytics.upsert({
+        where: {
+            listingId_day: {
+                listingId,
+                day
+            }
+        },
+        update: {
+            views: {
+                increment: 1
+            }
+        },
+        create: {
+            listingId,
+            day,
+            views: 1,
+        },
+        select: {
+            views: true
+        }
+    })
+}
+```
+
+The more interesting part was actually displaying the data. I split this up into 2 parts. One part was getting the data and the other part was displaying it. I couldn’t just give the data to the graph without doing some adjustments. The main thing I did here was adding days between the day published (as only stated doing analytics there), and now. If a day didn’t exist, I made it equal 0 so that the graph isn’t fully ugly.
+
+```tsx
+// /app/listing/[id]/analytics/page.tsx
+
+export const metadata = {
+    title: "Analytics",
+    description: "See analytics for your listing.",
+}
+
+export default async function SettingsPage({
+    params: { id },
+}: {
+    params: { id: string }
+}) {
+
+    const user = await getCurrentUser()
+		// below is a cached function's result used in layout - only doing one db request per page req
+    const listing = await getListing(id, user?.id ?? '') 
+    if (!listing || user?.id !== listing?.userId) {
+        redirect(authOptions?.pages?.signIn || "/login")
+    }
+
+    const analytics = await prisma.listingAnalytics.findMany({
+        where: {
+            listingId: id
+        },
+        orderBy: {
+            day: 'asc'
+        }
+    }) as { day: Date, views: number }[];
+
+    const startDate = listing.publishedAt || analytics?.[0]?.day || new Date();
+    const currentDate = new Date().setUTCHours(0, 0, 0, 0);
+
+    // clone it
+    const checkDate = new Date(new Date(startDate.valueOf()).setUTCHours(0, 0, 0, 0));
+
+    // fill in the gaps
+    while (checkDate.getTime() < currentDate) {
+        checkDate.setUTCDate(checkDate.getUTCDate() + 1);
+        if (analytics.find(item => item.day.getTime() === checkDate.getTime())) continue;
+
+        analytics.push({
+            day: new Date(checkDate),
+            views: 0
+        });
+    }
+
+    const chartdata = analytics
+        .sort((a, b) => a.day.getTime() - b.day.getTime())
+        .map((item, index) => ({
+            day: item.day.toISOString().split('T')[0],
+            'Page Visits': item.views
+        }));
+
+    return (
+        <DashboardShell>
+            <DashboardHeader
+                heading={metadata.title}
+                text={metadata.description}
+            />
+            <div className="grid gap-10">
+                {/* something */}
+                <AnalyticsGraph chartData={chartdata} />
+            </div>
+        </DashboardShell>
+    )
+}
+```
+
+On the client side, I used [Tremor](https://www.tremor.so/) again for graphs. As you might know, I used it in my data science project, so I felt that I should try it again here. With little config I also got this to work well. The main thing that this code below does is section out the months so that only 31 plots of data exist at once and then show the data. I used some weird methods of splitting date to get this to work, but I am happy with it (can change later if I really want).
+
+```tsx
+// /app/listing/[id]/analytics/graph.client.tsx
+'use client'
+
+const dataFormatter = (visits: number) => `${visits.toString()}`;
+const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
+
+export default function AnalyticsGraph({ chartData }: { chartData: LineChartProps['data'] }) {
+    const startTime = new Date(chartData[0]?.day)
+
+    // go and create list of month and year pairs from startDate to current date
+    const monthYearNames = [] as string[];
+    for (let year = startTime.getFullYear(); year <= new Date().getFullYear(); year++) {
+        // don't go earlier than the start date and don't go later than the current date
+        const start = year === startTime.getFullYear() ? startTime.getMonth() : 0;
+        const end = year === new Date().getFullYear() ? new Date().getMonth() : 11;
+        
+        for (let month = start; month <= end; month++) {
+            monthYearNames.push(`${monthFormatter.format(new Date(year, month))} ${year}`);
+        }
+    }
+
+    const [monthChosen, setMonthChosen] = useState<string>(monthYearNames.at(-1)!);
+
+    const getMonthData = (chartData: LineChartProps['data'], monthChosen: string) => chartData.filter((item) => {
+        const date = new Date(item.day);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        return monthChosen === `${monthFormatter.format(new Date(year, month))} ${year}`;
+    });
+
+    const monthData = getMonthData(chartData, monthChosen)
+    
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Page visits per day</CardTitle>
+                <CardDescription>
+                    This is how many views your listing has had in each day (days set to utc).
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Select defaultValue={monthYearNames.at(-1)} onValueChange={setMonthChosen}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a month" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                        <SelectGroup>
+                            {monthYearNames.map((monthYearName) => (
+                                <SelectItem
+                                    key={monthYearName}
+                                    value={monthYearName}
+                                >
+                                    {monthYearName}
+                                </SelectItem>
+                            ))}
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+
+                <AreaChart
+                    className="mt-6"
+                    data={monthData}
+                    index="day"
+                    categories={["Page Visits"]}
+                    valueFormatter={dataFormatter}
+                    // yAxisWidth={40}
+                    showAnimation={true}
+                />
+            </CardContent>
+
+        </Card>
+    );
+}
+```
+
+Overall, I am glad that there are open source libraries that can do these things for me, and I don’t need to worry as much about styling and to a degree implementation. I still have lots that I need to do, but it reduces a big pain point. Also, if you want to see how it currently is, you can visit the website: https://online-store-michael.vercel.app/.
+
+## Reflection
+
+### Why did you want to make the analytics privacy focused?
+
+There are many reasons that I wanted to make the analytics privacy focused. The main being that I don't usually like them when intrusive on other websites, so why should I also. I could have made it a user thing and then done IP geolocating but I felt that it would over complicate things (and more unnecessary info). I basically just stored the requests number in the DB (per day), so there is basically no privacy issues and the listing creator can see how popular it is. Another benefit is that uses less reads for that page as only the days (speed as well as counts towards the massive free tier limit).
+
+### Modal makes things slower though?
+
+The modal can indeed slowdown ability to remove images, but I believe that it is otherwise too easy. I also think it is faster to check if want delete than re-uploading it. For editing the alt text/ description the modal for editing is way better than a making a textbox that causes weird layout shifting. I could also not have a button and just have input below, but I don’t like that UI. I also could have chosen to not have the ability to remove and edit, but that seemed like horrible UX and accessibility. A thing that I was planning was to have the icons ontop if the image also, and have drag and drop for reordering.
+
+### How efficient is this?
+
+In terms of SQL queries, its pretty bad efficiency because I use [Prisma ORM](https://www.prisma.io/) to simplify things, and it does more than I would do with raw SQL requests. This is something that I don’t believe is much of an issue right now as I am just wanting to get a good product and not perfect. There are also probably better ways for getting graph data, which includes the method of formatting. I think I should less rely on string and weird compare and just use dates. However, it currently works well, and thus it is good and future me problem.
