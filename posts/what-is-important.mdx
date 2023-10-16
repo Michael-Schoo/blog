@@ -1,0 +1,42 @@
+---
+title: .What is important to do?
+description: I only have a few weeks left, what features should I still implement.
+date: 2023-10-16
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+Many things are important. But for my web dev project, there are many options that I can do. Some that I need to do and others are just wants. Today, I will tell you about that is being planned and what is not. In my opinion, the best features are the ones that make the site actually usable. In this case, I have some things planned that need to exist to have any chance at presentation, and other things that I just would like to have.
+
+### What was completed
+
+As I just said, there are many things that I need to do. My first thing I want to do is have a better listing UI, which includes a carousal for images. This will be useful because it can allow for actually using the many images as well as having the ability for the listing to be fancier and higher chance of purchase or closing of listings. I also want to improve the usefulness of the site by actually being able to buy listings. This will mean that I should add notification or at minimum send email (to the listing creator and the purchaser). I do plan for creating a “chat” that both parties can use to discuss acquiring the product (and maybe also for inquiries).
+
+Aside from the actual listing part, I will want to add a settings page for the user. This will have stuff like changing name currently (email maybe too). To have another way to change settings , I will do my onboarding page that will have display name that is populated from email or Google name. Something new is that I am changing the username constraint from unique to just any string (with basic rules such as min and max length and maybe still only English chars). It was just being more painful to deal with usernames then it was worth. As well as the fact that other sites don’t don’t over complicate it with usernames (only social media, which this isn’t).
+
+I am debating creating a cart page because I am not sure if I am going to make buying instant. Originally I had it for just being a store, but now that I am just making it for listings, I don’t know if this is the best. I think I will make a “watch list” and just go strait into chat to buy it. My thinking is that this is more for second hand or one off items than mass produced by same person/account. I will then have 4 states: draft, listed, negotiating, and purchased. This should allow me to decide whether to show it in the homepage.
+
+My 2 best ways for buying is either set a textbox for the user to see upon purchase or force a chat where the user can “pay” within the chat or the listing creator to mark it as payed (like from in person). I wont add a cart page yet and just make it a modal saying how much it is and how much remaining afterwards. If the user notates with the original price, the poster will have to manually change it (as this helps with many things), maybe later I could add a better UI for offers (and if successful update the listing price)
+
+While writing this, I have felt that I need to create the chat system more now as I am making it a vital part of this system. I will implement “real time” chat by polling the API every 30 sec of window selected (refresh page if changes) and sent email with transcript (wont allow replying as sounds too weird for this app). Optimizations aren’t fully going to be a priority, I will try and make it decent, but I won’t implement websockets as time constraints o work out how to host and send messages. Security also is a high priority, as it isn’t very ethical if you can easy have data breaches (and easy way to loose potential users).
+
+Now is where I get into the things that are cool to implement, but shouldn’t change the minimum outcome. I should try and get a purchases history to show your current balance and where you spent or received money (ie history of transactions). In the listing config, I will try and add image reordering support to change which the priority image is (and just order for rest). I am also debating to add markdown support to description, I was going to do it more before, but I think that it won’t be used much, so I will just try with some basic ones (bold/italic/underline/list) and see how that goes. For the communications, I want to add a notifications page or drop down that can show unread messages and other things that would be sent to your email. Also, mobile support for config pages is… kinda bad.
+
+## Reflection
+
+### What is important for the assignment verses nice to have?
+
+The most important feature is being able to actually buy a listing. The website without it is very useless, so it is probably very needed to achieve very soon. Other things like comments are slightly less useful, but seem simple to implement. I am at the time where I have to start thinking about time rather than doing the parts that seem interesting. There is a chance I will add features such as purchases history, but make it hidden until I have a good UI to show for it (or maybe I’ll get too scared and not create it as UI is hard).
+
+### So, you want this site to be at least somewhat usable?
+
+Yeah, I want to be semi usable but not fully, so I just want to have virtual currency. This allows for fake trading, and as a result I don’t need to be so worried about security. I will want to have at least a way to mark the listing as purchased and at a minimum give both users each other’s email too communicate. I will also try and send emails to users involved, a purchase email and a receipt of purchase. I also will try and add a disclaimer that it isn’t intended to actually work as an actual website (ie be Ebay).
+
+### How might you expand this, even after its due?
+
+I think that I will keep the code on my school github, and then copy it to my personal github and if I haven’t finished those features yet then possibly add these features. I also am thinking about testing out the stripe API because that sounds cool (but future endeavors). I am kinda thinking that as I have spent so much time into this, that I kinda want to be able to use it as an example for portfolio (as the other assignments seemed too bad to show off).
