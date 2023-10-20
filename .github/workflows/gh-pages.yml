@@ -38,7 +38,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: "18"
+        node-version: "20"
         # cache: npm
 
     - uses: oven-sh/setup-bun@v1
@@ -47,10 +47,7 @@ jobs:
 
     - name: Install dependencies
       # run: npm ci
-      run: |
-        bun pm migrate
-        rm package-lock.json
-        bun install
+      run: bun install
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
