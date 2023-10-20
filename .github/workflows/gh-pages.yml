@@ -39,7 +39,13 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: "18"
-        cache: npm
+        # cache: npm
+
+    - uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      # run: npm ci
+      run: bun install
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
@@ -60,9 +66,6 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', '**.md', '**.mdx') }}
         # If source files changed but packages didn't, rebuild from a prior cache.
         restore-keys: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
-
-    - name: Install dependencies
-      run: npm ci
 
     - name: Build with Next.js
       run: npx --no-install next build
