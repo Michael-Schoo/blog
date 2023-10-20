@@ -35,15 +35,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: "20"
-        # cache: npm
+    # - name: Setup Node
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: "20"
+    #     # cache: npm
 
     - uses: oven-sh/setup-bun@v1
       with:
-        bun-version: "canary"
+        bun-version: "latest"
 
     - name: Install dependencies
       # run: npm ci
@@ -70,7 +70,7 @@ jobs:
         restore-keys: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
 
     - name: Build with Next.js
-      run: npx --no-install next build
+      run: bun run build
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
