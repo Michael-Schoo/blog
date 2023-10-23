@@ -1,0 +1,227 @@
+---
+title: Draggable Images to Re-Order
+description: Unfortunately, I couldn’t get this to work, but I will tell you what I tried.
+date: 2023-10-23
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+This Monday is one of the last few posts you will read from me. This means that the school year is soon coming to a close and my assignment is nearly due. In the last week, I have tried doing fancy things, but it didn’t end up working and I am considering going back to old methods or more basic. I also wish I didn’t spend so long trying to work on this seemingly small task and done more of the important things (listed last week).
+
+### What was completed
+
+Anyway, I will try and tell you what I tried. It all started because I wanted to allow re-ordering of images. I first thought that I can just put button that has left and right arrow and can be clicked to re-order. This would have bad UX, so I thought further about how platforms such as Discord allow dragging the images to re-order. As the JS ecosystem is large, I thought I should be able to search “React drag-able element to re-order” and get something, but it wasn’t quite like that (unlike other things). My requirement of the drag being for both axes really didn’t help (as I had grid of images that I wanted to change).
+
+After some refining of my queries and looking at many options, I found a [GitHub Repo](https://github.com/Augani/react-draggable-list) that included a demo link. I found this very good even thought it was horizontal (and not all axes). I [modified](https://stackblitz.com/edit/react-tqga4b) this to work for both axes and give a way to know when to save (in the provided sandbox), and it worked pretty good (there were some bugs, but it was good enough). The code looks basic and just works by using simple helper functions and a few libraries. In the below example, it creates the list and makes event listeners to update location and the list.
+
+```tsx
+import React from 'react';
+import './style.css';
+import { motion } from 'framer-motion';
+import { usePositionReorder } from './usePositionReorder';
+import { useMeasurePosition } from './useMeasurePosition';
+
+const List = [
+  'Item One',
+  'Item Two',
+  'Item Three',
+  'Item Four',
+  'Item Five',
+  'Item Six',
+  'Item Seven',
+  'Item Eight',
+  'Item Nine',
+  'Item Ten',
+];
+
+export default function App() {
+  const [updatedList, updatePosition, updateOrder] = usePositionReorder(List);
+
+  const [isdragged, setIsDragged] = React.useState(0);
+  React.useEffect(() => {
+    if (isdragged === 0) {
+      console.log(updatedList);
+      console.log('SAVE!');
+    }
+  }, [isdragged]);
+
+  return (
+    <ul className="container">
+      {updatedList.map((name, index) => (
+        <Item
+          key={'id:' + name}
+          ind={index}
+          updateOrder={updateOrder}
+          updatePosition={updatePosition}
+          setIsGlobalDragged={setIsDragged}
+          name={name}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function Item({ name, updateOrder, updatePosition, ind, setIsGlobalDragged }) {
+  const [isdragged, setIsDragged] = React.useState(false);
+  // setIsDragged1((n) => n + (isdragged ? 1 : -1));
+
+  const itemRef = useMeasurePosition((pos) => updatePosition(ind, pos));
+
+  return (
+    <li>
+      <motion.div
+        style={{
+          zIndex: isdragged ? 2 : 1,
+        }}
+        drag="xy"
+        dragConstraints={{
+          top: 0,
+          bottom: 0,
+          // left: 0,
+          // right: 0,
+        }}
+        dragElastic={1}
+        layout
+        ref={itemRef}
+        onDragStart={() => {
+          setIsDragged(true);
+          setIsGlobalDragged((n) => n + 1);
+        }}
+        onDragEnd={() => {
+          setIsDragged(false);
+          setIsGlobalDragged((n) => n - 1);
+        }}
+        animate={{
+          scale: isdragged ? 1.05 : 1,
+        }}
+        onViewportBoxUpdate={(_, delta) => {
+          isdragged && updateOrder(ind, delta.y.translate);
+        }}
+        drag
+      >
+        {name}
+      </motion.div>
+    </li>
+  );
+}
+```
+
+I got excited because of how easy it looked, and I assumed that I could just copy it. Unfortunately, it was too old and the packages that it uses have changed their APIs and broke it. But before I noticed that I got the issue of the example not having TypeScript. This meant that things were complaining as I needed to add the types, but I didn’t fully understand them yet. It also took me some time to realise the some of the other errors were because of the before mentioned changed APIs. Luckily it did allow for me to really have to analyse the code to be able to add the types (even though I wasted time now).
+
+I then decided to go back to simple and search up how to do it for generic HTML and JS. I found this nice [article by Google](https://web.dev/articles/drag-and-drop) that showed how I can implement it in very few code and use native browser APIs. This wasn’t my preferred option as it doesn’t organize the items as well (ie move out of the way), but I think it is still better than buttons. If I go for this method, I feel like it shouldn’t be too hard to make it work in my React project.
+
+Basically this method is setting some content to drag and then having spots to upload it, in the other item locations. Once you decide to drag it to another item, it swaps the places. In some ways I feel like this is a little hacky, but also funny and good to use.
+
+```tsx
+document.addEventListener('DOMContentLoaded', (event) => {
+
+  var dragSrcEl = null;
+  
+  function handleDragStart(e) {
+    this.style.opacity = '0.4';
+    
+    dragSrcEl = this;
+
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+
+    e.dataTransfer.dropEffect = 'move';
+    
+    return false;
+  }
+
+  function handleDragEnter(e) {
+    this.classList.add('over');
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('over');
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation(); // stops the browser from redirecting.
+    }
+    
+    if (dragSrcEl != this) {
+      dragSrcEl.innerHTML = this.innerHTML;
+      this.innerHTML = e.dataTransfer.getData('text/html');
+    }
+    
+    return false;
+  }
+
+  function handleDragEnd(e) {
+    this.style.opacity = '1';
+    
+    items.forEach(function (item) {
+      item.classList.remove('over');
+    });
+  }
+  
+  
+  let items = document.querySelectorAll('.container .box');
+  items.forEach(function(item) {
+    item.addEventListener('dragstart', handleDragStart, false);
+    item.addEventListener('dragenter', handleDragEnter, false);
+    item.addEventListener('dragover', handleDragOver, false);
+    item.addEventListener('dragleave', handleDragLeave, false);
+    item.addEventListener('drop', handleDrop, false);
+    item.addEventListener('dragend', handleDragEnd, false);
+  });
+});
+```
+
+```tsx
+<!-- Copyright 2018 Google LLC.
+SPDX-License-Identifier: Apache-2.0 -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello!</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/dnd.js"></script>
+  </head>  
+  <body>
+    <div class="container">
+        <div draggable="true" class="box">A</div>
+        <div draggable="true" class="box">B</div>
+        <div draggable="true" class="box">C</div>
+    </div>
+  </body>
+  
+</html>
+```
+
+Once I tried working out what the alternatives to the original repo was, I saw that the library implemented the drag re-ordering themself, and I should be able and use it. Their [docs](https://www.framer.com/motion/reorder/) only have one of the axes, but I am going to check if I can use it. I ran out of time to try this before writing, so you should hear about it next week. If this does work, I will be happy as it looks so simple and good UX.
+
+Aside from the drag, I also implemented settings and onboarding page. They currently are minimal on what can set (only name), but it was simple as I just copied the code from the edit listing dashboard. I know that this looks similar, but I hope that it won’t get too confusing. The coping part is the other reason I wanted to use react as I can have one source of truth for component and use it many places (instead of copy and edit in many places). I also “added” purchase history, but I need to add the ability to buy to actually show something.
+
+## Reflection
+
+### Why do you care about quality so much?
+
+While I want lots of features, I want them to work well, and is kinda the phrase `quality > quantity`. I want to be able to show off really cool things in my presentation, and having lots isn’t as impressive as fewer but better. If I make something bad, I’ll either make sure its temporary or really hide it. An example may be a admin page where I might have a place for reported listings, and as I am the only person who would see it, it can’t be too bad having worse UX (other than me getting annoyed at it).
+
+### How are you going to best make use of your peers?
+
+Now that my project is nearing completion, I should have stuff for otherwise to test. I think that asking them to test specific pars are better then just the whole thing. This is because they may not normally use that feature, or I am working on it, so input there is helpful. I will listen to their feedback and see what they think about it, but also see they act an use the website. There is a large chance that they think differently too me, and finding out what that is, should help it be good for more people.
+
+### How are you going with breaking changes?
+
+I was going well with not having breaking changes. There are only really 2 times where I did, and I really thought about it. If I am only including the pushes on GitHub, the first time was when I changed to use nextauth instead of custom auth method in DB (this was a different login system, so had to change accounts, and thus reset DB for simplicity).  The other time was just recently (last week) changing `username` to just `name` as not unique anymore (and can change back if I really care). I am choosing to not do too much because to learn and I try to plan my features so they don’t need much change.

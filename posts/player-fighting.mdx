@@ -1,0 +1,145 @@
+---
+title: Player and Fighting
+description: Making the game be able to fight better.
+date: 2023-10-23
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+Has a week really occurred or is it just your imagination. If it is, then I shall do my weekly tradition of updating you on my IT project, and more specifically data science. Like the other posts, this one will be about my “game” for simulating a Hunger Games type of thing. In today's episode, I will talk about my advancements with player fighting and how I plan to use the map to its best potential. I also will discuss how I think I can do fancy code, even if it won’t be done (as too complex).
+
+### What was completed
+
+Now, to start off with, I am starting to have very complex (in terms of hard to find where and what happens) so, I need to work on fixing that. I need to ensure that it doesn’t get too fragmented but instead simplified by using folders and more files. It is in my best interest to make it better to code as no real performance hit but instead DX (so slower to actually do things)
+
+The code below is for my player class. This is effectively the person class, but game specific (ie gets generated there). This is because things like map doesn’t need to be on the generic instance (and should be reset every game anyway). Currently, I include the health and location of player (more to come later, like backpack/storage). I then expose 2 functions relating to map, one for moving and another for fighting. I chose to keep them separate and not check if player and then fight, as more complex and they are kinda 2 different things. 
+
+The move function just checks that there isn’t anyone already on the tile, and then moves there. I need to check if it is valid even though it I my code (just a good place to see if I broke something). The fight function is slightly more complex as it actually checks if it is valid (currently needs to be adjacent block) and there is a check for same district (no fighting from same team), and then removes the opponent’s health. In the future I need to add a way that they fight back, either after or at the same time (ie CIV6 is both and Polytopia is only if not instant kill).
+
+```tsx
+// player.ts
+export default class Player {
+    readonly person: Person;
+    readonly game: Game;
+    readonly map: GameMap
+    location: [number, number]
+    hp = 100
+
+    constructor(person: Person, map: GameMap, spawnLocation: [number, number]) {
+        this.person = person;
+        this.game = person.game;
+        this.map = map
+        this.location = spawnLocation
+    }
+
+    get currentTile() {
+        const tile = this.map.map.get(`${this.location[0]}-${this.location[1]}`)
+        if (!tile) {
+            throw new Error("Tile doesn't exist")
+        }
+
+        return tile
+    }
+
+    move(x: number, y: number) {
+        const tile = this.map.map.get(`${x}-${y}`)
+        if (!tile) {
+            throw new Error("Tile doesn't exist")
+        }
+
+        if (tile.player) {
+            throw new Error("Already occupied with: " + tile.player.person.name)
+        }
+        
+        // todo: check if valid move (ie not too long + also check from player/district abilities
+
+        tile.player = this
+        this.map.map.set(`${x}-${y}`, tile)
+    }
+
+    fight(opponent: Player, damage: number) {
+        // check if opponent is adjacent
+        const [thisX, thisY] = this.location
+        const [fightX, fightY] = opponent.location
+
+        // TODO: separate this out and allow for better attacks (ie areal for bow)
+        const isUp = (thisX == fightX) && (thisY - 1 === fightY)
+        const isDown = (thisX == fightX) && (thisY + 1 === fightY)
+        const isLeft = (thisX - 1 == fightX) && (thisY === fightY)
+        const isRight = (thisX + 1 == fightX) && (thisY === fightY)
+
+        if (!isUp || !isDown || !isLeft || !isRight) {
+            throw new Error("Player not adjacent, and can't fight")
+        }
+
+        // check if same district
+        if (this.person.district.type === opponent.person.district.type) {
+            throw new Error("Players in the same district can't fight each other")
+        }
+
+        const newHealth = round(opponent.hp - damage, 2)
+
+        opponent.hp = (newHealth > 0) ? newHealth : 0
+        if (opponent.hp === 0) {
+            opponent.person.kill(this.game.year)
+        }
+
+        // TODO: player fights back
+
+    }
+
+}
+```
+
+I also need to do some changes to my map file. This was updating the move code to use my new function (not directly modifying the state) and now fight if player there. I probably will change this to a better method of choices, but for now there should be some fighting to occur. This change just made variable outside switch case and used it to change that value instead of players *(edit, I just realised that with JS pointers, it is probably modifying original, so I will need to clone it)*. I then find the tile that was chosen, and sees if a player exists, and if applicable fights them, or moves instead.
+
+```tsx
+// map.ts (exerpt of sone of .newTurn())
+const newCords = [playerX, playerY] as [number, number]
+
+// move
+switch (move) {
+    case MovementChoice.Up:
+        newCords[0] -= 1
+        break;
+    case MovementChoice.Down:
+        newCords[0] += 1
+        break;
+    case MovementChoice.Left:
+        newCords[1] -= 1
+        break;
+    case MovementChoice.Right:
+        newCords[1] += 1
+        break;
+    default:
+        // move satisfies never
+        // throw new Error("not a move")
+}
+const proposedTile = this.map.get(`${newCords[0]}-${newCords[1]}`)
+if (proposedTile?.player) {
+    player.fight(proposedTile.player, 10)
+} else {
+    player.move(...newCords)
+}
+```
+
+To improve this madness, I will make it more chaotic. Surly pathfinding isn’t hard when using cost-based system. Like If I just compute all options that a player can do, and then do the best one, surly that isn’t too hard. As I only have 24 players, I should be able to do a decent amount of depth, but I haven’t ever done this, so I may be underestimating it. Another thing I want to do is give districts certain bonuses and different items to survive off of. This will definitely make the pathfinding more complex, but I feel like even with something, I will be happy.
+
+## Reflection
+
+### You like overcomplicating things?
+
+There are pros and cons for overcomplicating things… It is mostly wasteful of time, but it can sometimes lead to better project and understanding of things. If I have to spend time researching (like web dev), then I know more about it. On the flip side, with a simpler code, I can make an actually function product that I can fix later. Being simple is not bad, and I need to believe that more and not think basic means that my assignment is badly done.
+
+### How is time looking?
+
+I believe that I can do the listed items (from last week and this week). For that to occur, I may need to make the requirements more basic as initially imagined. As I said before, I need to have a functional game and not cool gimmicks. But in a basic sense, this should be able to be done in the next week. In theory, I should be able to make better graphs for showing the cool data, and making a better game that has some degree of genetic algorithm.
+
+### Any other things to improve DX?
+
+As I also mentioned, splitting up files are a very good way of improving my experience of developing this. I shouldn’t go too much on making files, but there needs to be a point where it makes more sense (either from length or just different outcome). Another way to think about this is extracting things to reusable functions (as that can be used more times than just once or copied many times). The last thing that I need to do is actually committing the project to GitHub so that I can have version history (and have better knowledge on what to write here)
