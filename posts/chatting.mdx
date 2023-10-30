@@ -1,0 +1,128 @@
+---
+title: Chatting with Seller
+description: I am making the recommended way for communication and buying.
+date: 2023-10-30
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - web-dev
+---
+
+## Overview
+
+Week 13 is one of the last weeks of school. This is especially the case with IT as this is my second last IT blog for web dev (for possibly forever). I shall take the opportunity to tell you about what was actually done then and what I will do for my last week with this assignment. The unfortunate news is that I haven’t added many new features in the past week, but I have done some thinking and experimenting with a few ideas.
+
+### What was completed
+
+The very first thing I had to do to implement chatting is add it to the database. This meant I had to create the table that is meant to shore the messages. I chose to add a table for storing basic info and then another one for the actual messages. I currently have the primary key based on the listing and user. This is not that optimal as it causes extra chaos with trying to use it, but I think it can be similar to making a new ID for it. I will make my APIs use the listing url and then the user’s ID, so it shouldn’t be that hard to use properly. I also wanted this because there is going to be only one chat for each person and the listing (user can create many chats but only one with the same listing). This also allows for me to do easily find the chat for every user (and list the chats available).
+
+I also made use of [Prisma Enums](https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#enum) to make a message be not only generic. I will make it be able to be used for counter offers and such (will make a new column and use message as optional reason). I feel like enums are a very good method of dealing with this, and is better than making many tables and doing a way more complex query.
+
+```tsx
+// prisma/schema.prisma
+model ListingChat {
+  listingId String
+  buyerId   String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer     User    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  archived  Boolean @default(false)
+  @@id([listingId, buyerId])
+  @@index([listingId])
+  @@index([buyerId])
+  @@map("listing_chat")
+}
+
+model ListingChatMessage {
+  id        String          @id @default(cuid())
+  listingId String
+  buyerId   String
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String          @db.Text()
+  type      ChatMessageType @default(MESSAGE)
+  createdAt DateTime        @default(dbgenerated("now()")) @db.Timestamp()
+  @@index([listingId, buyerId])
+}
+
+enum ChatMessageType {
+  MESSAGE
+  COUNTER_OFFER
+}
+```
+
+Now that I have the ability to store the data, I shall actually store something. The first thing I am doing is checking that the chat is actually accessible and creates it. This means that I need to do the following:
+
+- if owner of listing, the user has to have already initiated convo (404 otherwise)
+    - `/listing/[id]/chat` shows all the chats available for the listing
+- if logged in user, creates their page
+    - `/listing/[id]/chat` redirects to their chat page
+- if current user isn’t the `userId` mentioned in url (`/listing/[id]/chat/[userId]`), also should 404 or maybe 401 error
+
+Without doing these checks, I would have a big exploit that would be annoying for actual accounts - some big abuse possible.
+
+```tsx
+// src\app\(main)\listing\[id]\chat\[userId]\page.tsx
+export default async function ChatPage({
+   params: { id, userId },
+}: {
+    params: { id: string, userId: string }
+}) {
+    const user = await getCurrentUser()
+    if (!user) {
+        redirect(authOptions?.pages?.signIn || "/login")
+    }
+
+    const listing = await prisma.listing.findUnique({
+        where: {
+            id
+        }
+    })
+
+    if (!listing) return notFound()
+    if (user.id !== listing.userId && user.id !== userId) return notFound()
+
+    let listingChat = await prisma.listingChat.findUnique({
+        where: {
+            listingId_buyerId: {
+                listingId: listing.id,
+                buyerId: userId
+            }
+        }
+    })
+
+    if (!listingChat && user.id === listing.userId) return notFound()
+    if (!listingChat && listing.archived) return 'listing expired'
+
+    if (!listingChat) {
+        listingChat = await prisma.listingChat.create({
+            data: {
+                listingId: listing.id,
+                buyerId: user.id
+            }
+        })
+    }
+
+    return (
+        JSON.stringify(listingChat)
+    )
+}
+```
+
+As you can see, I haven’t implemented everything yet. I have done checks to see if valid listing chat instance, but I need to deal with styling and more implementation of actually communicating. I am also not sure how I feel about double PK and not make independent, I wanted it to be based on user and listing, but now its probably more complex than necessary. The UI at least needs to support sending messages and the ability to “pay” (with virtual currency) and then mark it as purchased.
+
+The rest of things mentioned a few posts ago are still planned to do, and I believe that they will be able to make this project complete and really good (at least to be as my biggest web project).
+
+## Reflection
+
+### How could you have done the new tables better?
+
+I could still have done everything basically the same and included the 2 other IDs, but made auto ID. This would have made more queries because not so simple, but it is also good to make sure the chat is only designed for a listing. However, I think with the remaining time and that I have something that works, I will continue to use this method and consider revisiting it later. It shouldn’t be that hard and I should do it so I can keep old messages without things being too bad.
+
+### What else do you need to finish this?
+
+The other things that I need to do to complete chatting with the seller is the ability to chat and the fancy chat types. My opinion is that this can be little more painful as not just a simple buy button, but it kind of makes sense now that I have changed it from “online store” to “web listings” (basically removing the emphasis on store and more just things). I also need to make sure I don’t just lock the chat after payment like the listing (as still might need to communicate) but make it maybe after day or inactivity by making a cron script again. There are many other cool things that I hope to tell you next week (in a finished state).
+
+### How helpful were others for this?
+
+My peers were very helpful with the implementation of this feature While I didn’t follow most of the advice, I still asked them on their opinion of my idea, which was that my table method isn’t the best. However, they reassured me that it is probably fine and I shouldn’t try to make everything perfect. I think I confused them a little based on how I had to explain my idea, but that was also a good learning experience because effective communication is important.

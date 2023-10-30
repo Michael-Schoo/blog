@@ -1,0 +1,106 @@
+---
+title: Some Optimisations
+description: Using better methods of doing the same thing. 
+date: 2023-10-30
+tags:
+  - From Assignments
+  - Programming
+categories:
+  - data-science
+---
+
+## Overview
+
+I should optimise my writing of these posts as I need to do them every week. As you hopefully know, the second last post for data science is here and it is going to be emptier than the last one. I had hoped that I had finished the project/game by now, however that doesn’t seem to have occurred. Instead, I have spent some time doing optimisations and some actual new features. I know that a finished project is better than none, but I really was interested in doing some of these.
+
+### What was completed
+
+One of the major refactors that I did was changing how I do errors/check that things are valid. I changed my `if` and `throw` error to just `assert`. This makes my tests more readable and use less lines. In my opinion it looks better, and I can understand it better, and it forces me to do the checks better (as easier). I haven’t checked the performance benefit, but not everything needs to improve efficiency with runtime. Just making me be able to read it faster is good. [Bun](https://bun.sh) has many optimisations, so it might, but DX is also good anyway.
+
+```tsx
+// src/family.ts (inside constructor)
+
+// need to be same district
+assert.equal(
+    this.parentFemale.district.type,
+    this.parentMale.district.type,
+    "Parents must be in the same district"
+);
+
+// correct sex
+assert.equal(this.parentMale.sex, "male", "Parents must be correct sex")
+assert.equal(this.parentFemale.sex, "female", "Parents must be correct sex")
+
+// over 18
+assert(this.parentMale.age > MIN_MARRIAGE_AGE, "Parents must be over 18")
+assert(this.parentFemale.age > MIN_MARRIAGE_AGE, "Parents must be over 18")
+
+// already has a family?
+assert.notEqual(this.parentMale, this.parentMale.family?.parentMale, "Male parent already has a family")
+assert.notEqual(this.parentFemale, this.parentFemale.family?.parentFemale, "Female parent already has a family")
+```
+
+```tsx
+// OLD: src/family.ts (inside constructor)
+
+// need to be same district
+if (this.parentFemale.district.type !== this.parentMale.district.type) {
+    throw new Error("Parents must be in the same district");
+}
+
+// correct sex
+if (this.parentMale.sex !== "male" || this.parentFemale.sex !== "female") {
+    throw new Error("Parents must be correct sex")
+}
+
+// over 18
+if (this.parentMale.age < MIN_MARRIAGE_AGE || this.parentFemale.age < MIN_MARRIAGE_AGE) {
+    throw new Error("Parents must be over 18")
+}
+
+// already has a family?
+if (this.parentMale.family || this.parentFemale.family) {
+    throw new Error("At least one parent already has a family")
+}
+```
+
+In this example, you can see that there are less lines, and you have a better understanding on what I am doing. You can also see that I fixed a bug and only realised when refactoring. It didn’t seem like much, but I had quite a lot of places that I added these checks and I updated all of them. I also added some more than I had before as well as fixing some to be better.
+
+My next set of changes involved making use of the fact that I am using Bun. For some backstory, I used it as it had improved speed and QOL improvements when using TypeScript. I slowly made it require Bun, so I might as well actually use its fancy features. Bun [implements](https://bun.sh/docs/runtime/bun-apis) lots of things on top of normal JS, and it reminds me of Python. It was one of the things I missed when changing to use JS, so having access to the nice and easy to use things without random dependencies is nice.
+
+For the following example, I changed the usage of [Node FS](https://nodejs.org/api/fs.html) to use Bun’s optimised file method. This has similar methods of interacting, but in my opinion, it is better to look at. Both work on where the file is, so it doesn’t get messed up for any started location.
+
+```tsx
+// main.ts (export data)
+import { resolve } from "path";
+const data = game.export();
+const path = resolve(import.meta.path, "../../../visualization/public/data.json");
+await Bun.write(path, JSON.stringify(data))
+```
+
+```tsx
+// OLD: main.ts (export data)
+import fs from "node:fs";
+import path from "node:path";
+
+const __dirnameAlt = __dirname || path.dirname(path.resolve());
+
+const data = game.export();
+fs.writeFileSync(path.join(__dirnameAlt, "../../visualization/public", "data.json"), JSON.stringify(data));
+```
+
+Overall, there is still plenty I need to do, but it was cool to look back on my code and change it to be better and more readable.
+
+## Reflection
+
+### How important is good code though?
+
+Good code is very important as I need to know what is happening. If I don’t understand my code, then I can’t write new code and thus fail as a dev. Why else is code commenting useful and recommended by many. Is it because you can forget why you did something and need a quick and easy reminder why it was done that way. If doesn’t hurt the actual outcome much, then what is that bad especially when you way up the benefit to you as the dev.
+
+### Why weren’t you finishing the actual requirements?
+
+Well, I got a little distracted and as a result I haven’t done the requirements of the assignment or my things that I listed. I also just heard about the features and wanted to test them out. This was a cool experience of changing things even though I found out some of my things done didn’t have that significant of an impact. I will now really make sure I only do important things and not get distracted again unless I finish the core requirements (which is a decent list right now).
+
+### Any last minute info?
+
+There isn’t much to say other than I need to implement the map with questionable smartness. I then want to show that data well because what point is making it without use. I need to really make sure I add parts for genetic algorithm as currently there is just random with nothing being achieved. I think the genetic algorithm will be tied up with district and some other random quality. Time currently isn’t looking in my favor for doing it quality, so some may need to be done after its due because it is intresting.
