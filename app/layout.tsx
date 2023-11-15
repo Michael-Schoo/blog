@@ -1,7 +1,7 @@
 import '../styles/globals.css'
 import '../styles/scss/style.scss'
 import LeftSidebar from '#/components/sidebar/Left'
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
 import config from '#/config'
 import { Lato } from 'next/font/google'
 
@@ -33,6 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   )
 }
 
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+}
 
 export const metadata: Metadata = {
   title: {
@@ -62,6 +65,5 @@ export const metadata: Metadata = {
     },
     description: config.sidebar.subtitle,
   },
-  colorScheme: 'light dark',
   generator: `Next.js ${process.env["npm_package_dependencies_next"]}`,
 }
